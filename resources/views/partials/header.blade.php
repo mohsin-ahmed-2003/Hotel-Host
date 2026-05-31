@@ -294,7 +294,8 @@
 
         <nav class="homenavbar">
             @if(session('user_id'))
-                <a href="{{ route('host.start') }}" class="desktop-only-btn" style="background:var(--accent);color:#fff;padding:10px 18px;border-radius:24px;font-size:13px;font-weight:700;text-decoration:none;transition:background 0.2s;">Host Property</a>
+                <a href="{{ route('host.start') }}" class="desktop-only-btn" style="background:var(--accent);color:#fff;padding:10px 18px;border-radius:24px;font-size:13px;font-weight:700;text-decoration:none;transition:background 0.2s;margin-right:8px;">Host Property</a>
+                <a href="/wishlist" class="desktop-only-btn" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--header-text);padding:10px 18px;border-radius:24px;font-size:13px;font-weight:700;text-decoration:none;transition:all 0.2s;margin-right:8px;display:inline-flex;align-items:center;gap:6px;"><i class="fa-regular fa-heart" style="color:#f87171;"></i> Wishlist</a>
             @endif
 
             <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
@@ -318,6 +319,7 @@
                         <a href="/dashboard">Dashboard</a>
                         <a href="/trips">Trips</a>
                         <a href="/reservations">Reservations</a>
+                        <a href="/wishlist">Wishlist</a>
                         <a href="{{ route('user.properties') }}">Your Property</a>
                         <div class="header-dropdown-divider"></div>
                         <a href="/profile">My Profile</a>

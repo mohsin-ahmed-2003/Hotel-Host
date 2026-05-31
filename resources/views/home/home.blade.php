@@ -1665,20 +1665,7 @@
 
         // Synchronize active wishlist states in dynamically fetched card segments
         function syncLoadedWishlist() {
-            const wishlist = JSON.parse(localStorage.getItem('user_wishlist') || '{}');
-            Object.keys(wishlist).forEach(roomId => {
-                const buttons = document.querySelectorAll(`.wishlist-btn-room-${roomId}`);
-                buttons.forEach(btn => {
-                    const icon = btn.querySelector('i');
-                    if (wishlist[roomId]) {
-                        btn.classList.add('active');
-                        if (icon) icon.className = 'fas fa-heart';
-                    } else {
-                        btn.classList.remove('active');
-                        if (icon) icon.className = 'far fa-heart';
-                    }
-                });
-            });
+            // Evaluated on render inside room_card PHP template direct from DB!
         }
 
         // Prevent slides navigation click from bubbling up and clicking card link itself
@@ -1739,39 +1726,173 @@
             }
         }
 
-        // Wishlist Toggle persistent logic
+        let currentActiveRoomId = null;
+
+        // Wishlist Toggle persistent logic via AJAX
         function toggleWishlist(event, roomId) {
             event.stopPropagation();
             event.preventDefault();
+            
+            const isLoggedIn = {{ session('user_id') ? 'true' : 'false' }};
+            if (!isLoggedIn) {
+                window.location.href = "{{ route('auth') }}";
+                return;
+            }
+
             const btn = event.currentTarget;
             const icon = btn.querySelector('i');
             if (!btn || !icon) return;
 
-            btn.classList.toggle('active');
-            if (btn.classList.contains('active')) {
-                icon.className = 'fas fa-heart';
-            } else {
-                icon.className = 'far fa-heart';
+            // First toggle AJAX trigger to check/delete or prompt
+            fetch('/wishlist/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ room_id: roomId })
+            })
+            .then(res => {
+                if (res.status === 401) {
+                    window.location.href = "{{ route('auth') }}";
+                    throw new Error("Unauthorized");
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    if (data.status === 'removed') {
+                        updateHeartIcons(roomId, false);
+                    } else if (data.status === 'prompt') {
+                        currentActiveRoomId = roomId;
+                        openWishlistModal(btn);
+                    }
+                } else {
+                    alert(data.message || "An error occurred.");
+                }
+            })
+            .catch(err => {
+                console.error("Wishlist error:", err);
+            });
+        }
+
+        function openWishlistModal(btn) {
+            const card = btn.closest('.room-card');
+            if (card) {
+                const img = card.querySelector('.slide-img.active')?.src || card.querySelector('.slide-img')?.src || '';
+                const title = card.querySelector('.room-card-title')?.innerText || '';
+                const price = card.querySelector('.price-val')?.innerText || card.querySelector('.room-card-price-row')?.innerText || '';
+                
+                document.getElementById('wishlistPreviewImg').src = img;
+                document.getElementById('wishlistPreviewTitle').innerText = title;
+                document.getElementById('wishlistPreviewPrice').innerText = price;
             }
+            
+            // Populate custom folders
+            fetch('/wishlist/groups')
+            .then(res => res.json())
+            .then(groups => {
+                const list = document.getElementById('wishlistGroupsList');
+                list.innerHTML = '';
+                
+                if (groups.length === 0) {
+                    list.innerHTML = `
+                        <div style="text-align:center; padding:16px; font-size:13px; color:#cbd5e1; opacity:0.6;">
+                            No collections yet. Create your first!
+                        </div>
+                    `;
+                } else {
+                    groups.forEach(group => {
+                        const item = document.createElement('button');
+                        item.className = 'wishlist-group-item-btn';
+                        item.innerHTML = `
+                            <span>${group}</span>
+                            <i class="fas fa-plus" style="font-size:10px; opacity:0.6;"></i>
+                        `;
+                        item.onclick = () => saveWishlistWithExistingGroup(group);
+                        list.appendChild(item);
+                    });
+                }
+                
+                document.getElementById('newGroupNameInput').value = '';
+                
+                const modal = document.getElementById('wishlistModal');
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    modal.classList.add('open');
+                }, 20);
+            });
+        }
 
-            const wishlist = JSON.parse(localStorage.getItem('user_wishlist') || '{}');
-            wishlist[roomId] = btn.classList.contains('active');
-            localStorage.setItem('user_wishlist', JSON.stringify(wishlist));
+        function closeWishlistModal() {
+            const modal = document.getElementById('wishlistModal');
+            modal.classList.remove('open');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
 
-            // Sync all instances of the same room on this page!
+        function saveWishlistWithExistingGroup(groupName) {
+            submitWishlistSave(groupName);
+        }
+
+        function saveWishlistWithNewGroup() {
+            const groupName = document.getElementById('newGroupNameInput').value.trim();
+            if (!groupName) {
+                alert("Please enter a collection name.");
+                return;
+            }
+            submitWishlistSave(groupName);
+        }
+
+        function submitWishlistSave(groupName) {
+            if (!currentActiveRoomId) return;
+            
+            fetch('/wishlist/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    room_id: currentActiveRoomId,
+                    group_name: groupName
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.status === 'added') {
+                    updateHeartIcons(currentActiveRoomId, true);
+                    closeWishlistModal();
+                } else {
+                    alert(data.message || "An error occurred.");
+                }
+            })
+            .catch(err => {
+                console.error("Save wishlist error:", err);
+            });
+        }
+
+        function updateHeartIcons(roomId, active) {
             const allButtons = document.querySelectorAll(`.wishlist-btn-room-${roomId}`);
-            allButtons.forEach(otherBtn => {
-                if (otherBtn !== btn) {
-                    const otherIcon = otherBtn.querySelector('i');
-                    if (btn.classList.contains('active')) {
-                        otherBtn.classList.add('active');
-                        if (otherIcon) otherIcon.className = 'fas fa-heart';
-                    } else {
-                        otherBtn.classList.remove('active');
-                        if (otherIcon) otherIcon.className = 'far fa-heart';
+            allButtons.forEach(btn => {
+                const icon = btn.querySelector('i');
+                if (active) {
+                    btn.classList.add('active');
+                    if (icon) {
+                        icon.className = 'fas fa-heart';
+                        icon.style.color = '#f87171';
+                    }
+                } else {
+                    btn.classList.remove('active');
+                    if (icon) {
+                        icon.className = 'far fa-heart';
+                        icon.style.color = '';
                     }
                 }
             });
         }
     </script>
+
+    @include('partials.wishlist_modal')
 @endsection

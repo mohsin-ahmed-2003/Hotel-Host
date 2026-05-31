@@ -1,10 +1,19 @@
 <!-- Premium Compact Room Card -->
+@php
+    $isWishlisted = false;
+    if (session('user_id')) {
+        $wishlistedRoomIds = $wishlistedRoomIds ?? \Illuminate\Support\Facades\Cache::remember('wishlist_ids_' . session('user_id'), 1, function() {
+            return \App\Models\Wishlist::where('user_id', session('user_id'))->pluck('room_id')->toArray();
+        });
+        $isWishlisted = in_array($room->id, $wishlistedRoomIds);
+    }
+@endphp
 <div class="room-card" onclick="window.location.href='{{ route('rooms.show', $room->id) }}'">
     <div class="room-image-slider">
         <!-- Wishlist Heart Button (Top-Right) -->
-        <button class="wishlist-btn wishlist-btn-room-{{ $room->id }}" onclick="toggleWishlist(event, {{ $room->id }})"
+        <button class="wishlist-btn wishlist-btn-room-{{ $room->id }} {{ $isWishlisted ? 'active' : '' }}" onclick="toggleWishlist(event, {{ $room->id }})"
             title="Add to Wishlist">
-            <i class="far fa-heart"></i>
+            <i class="{{ $isWishlisted ? 'fas fa-heart' : 'far fa-heart' }}" style="{{ $isWishlisted ? 'color:#f87171;' : '' }}"></i>
         </button>
 
         <!-- Next/Prev Buttons (shown on hover) -->
