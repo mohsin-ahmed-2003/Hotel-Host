@@ -1,0 +1,273 @@
+/* ═══════════════════════════════════════════════════════════
+   1. MANDATORY ASTERISK  — red * after every required label
+   ═══════════════════════════════════════════════════════════ */
+label.required::after,
+label[data-required]::after {
+    content: ' *';
+    color: #ef4444;
+    font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2. CUSTOM SELECT DROPDOWN
+   Hides the native <select> and renders a fully custom panel.
+   Works in light + dark mode, fully responsive.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Wrapper replaces the native select visually */
+.custom-select-wrap {
+    position: relative;
+    width: 100%;
+    user-select: none;
+    font-family: inherit;
+}
+
+/* The visible "trigger" box */
+.cs-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0px 14px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    min-height: 46px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cs-trigger .cs-arrow {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #667eea;
+}
+
+.custom-select-wrap.open .cs-trigger {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.18);
+}
+
+.custom-select-wrap.open .cs-arrow {
+    transform: rotate(180deg);
+}
+
+/* Dropdown panel */
+.cs-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.13);
+    z-index: 99999;
+    overflow: hidden;
+    animation: csPanelIn 0.18s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    max-height: 260px;
+    display: none;
+    flex-direction: column;
+}
+
+.custom-select-wrap {
+    position: relative;
+    width: 100%;
+    user-select: none;
+    font-family: inherit;
+    /* Ensure stacking context so panel floats above siblings */
+    isolation: isolate;
+}
+
+.custom-select-wrap.open {
+    z-index: 9999;
+}
+
+.custom-select-wrap.open .cs-panel {
+    display: flex;
+}
+
+@keyframes csPanelIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Search box inside panel */
+.cs-search {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+}
+
+.cs-search input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 7px;
+    font-size: 13px;
+    font-family: inherit;
+    background: #f8fafc;
+    color: #1e293b;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.cs-search input:focus {
+    border-color: #667eea;
+}
+
+/* Options list */
+.cs-options {
+    overflow-y: auto;
+    max-height: 200px;
+    padding: 4px 0;
+}
+
+.cs-option {
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #1e293b;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cs-option:hover {
+    background: #f1f5f9;
+}
+
+.cs-option.selected {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    font-weight: 600;
+}
+
+.cs-option.disabled {
+    color: #94a3b8;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* ── DARK MODE ── */
+body.dark-mode .cs-trigger,
+.dark-mode .cs-trigger {
+    background: #0f172a;
+    color: #f1f5f9;
+    border-color: #334155;
+}
+
+body.dark-mode .custom-select-wrap.open .cs-trigger,
+.dark-mode .custom-select-wrap.open .cs-trigger {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+body.dark-mode .cs-trigger .cs-arrow,
+.dark-mode .cs-trigger .cs-arrow {
+    color: #a5b4fc;
+}
+
+body.dark-mode .cs-panel,
+.dark-mode .cs-panel {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .cs-search,
+.dark-mode .cs-search {
+    border-color: #334155;
+}
+
+body.dark-mode .cs-search input,
+.dark-mode .cs-search input {
+    background: #0f172a;
+    color: #f1f5f9;
+    border-color: #334155;
+}
+
+body.dark-mode .cs-search input:focus,
+.dark-mode .cs-search input:focus {
+    border-color: #667eea;
+}
+
+body.dark-mode .cs-option,
+.dark-mode .cs-option {
+    color: #e2e8f0;
+}
+
+body.dark-mode .cs-option:hover,
+.dark-mode .cs-option:hover {
+    background: #263348;
+}
+
+body.dark-mode .cs-option.selected,
+.dark-mode .cs-option.selected {
+    background: rgba(102, 126, 234, 0.18);
+    color: #a5b4fc;
+}
+
+/* Admin panel uses CSS variables — override with them */
+.card .cs-trigger,
+.settings-panel .cs-trigger,
+.form-control.cs-trigger {
+    border-color: var(--border, #e2e8f0);
+    background: var(--bg, #ffffff);
+    color: var(--text, #1e293b);
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+
+.card .custom-select-wrap.open .cs-trigger,
+.settings-panel .custom-select-wrap.open .cs-trigger {
+    border-color: var(--primary, #6366f1);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.card .cs-panel,
+.settings-panel .cs-panel {
+    background: var(--card, #ffffff);
+    border-color: var(--border, #e2e8f0);
+}
+
+.card .cs-option,
+.settings-panel .cs-option {
+    color: var(--text, #1e293b);
+}
+
+.card .cs-option:hover,
+.settings-panel .cs-option:hover {
+    background: var(--bg-2, #f1f5f9);
+}
+
+.card .cs-search input,
+.settings-panel .cs-search input {
+    background: var(--bg, #f8fafc);
+    color: var(--text, #1e293b);
+    border-color: var(--border, #e2e8f0);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. INPUT BORDER — always visible, animation runs ON TOP
+   ═══════════════════════════════════════════════════════════ */
+
+/* The native <select> inside a custom-select-wrap is hidden */
+.custom-select-wrap>select {
+    display: none !important;
+}

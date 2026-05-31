@@ -1,0 +1,24 @@
+APP_URL=https://sizing-reward-antiquely.ngrok-free.dev
+if using -- ngrok
+GOOGLE_REDIRECT_URI=https://sizing-reward-antiquely.ngrok-free.dev/auth/social/google/callback
+
+C:\Users\User\OneDrive\Desktop\CRUD-Application\ngrok.exe config add-authtoken 3D7djm5s1g8awdNBTQGYB745YDS_71dLKQefKeN8THdvjvFAe
+Run:
+C:\Users\User\OneDrive\Desktop\CRUD-Application\ngrok.exe http 8000
+
+
+# APP_URL=http://localhost:8000
+
+if using artisan/xampp
+php artisan serve --host=localhost --port=8000
+
+Google Key:
+AIzaSyB_RAHRx-bK2QL-oGhMrvKbG4nmYZwl51s
+
+// hero media section
+.hero-media {
+  height: 100% !important;
+}
+.hero-overlay{
+  height: 100% !important;
+}
