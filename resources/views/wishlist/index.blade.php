@@ -21,8 +21,12 @@
     @else
         <!-- Folders Grid -->
         <div class="folders-grid" id="foldersGrid">
-            @foreach($groups as $groupName => $items)
-                <div class="folder-card" onclick="selectFolder('{{ addslashes($groupName) }}', '{{ md5($groupName) }}')" id="folder-{{ md5($groupName) }}">
+            @foreach($groups as $group)
+                @php
+                    $staysCount = isset($wishlistGrouped[$group->name]) ? $wishlistGrouped[$group->name]->count() : 0;
+                    $folderHash = md5($group->name);
+                @endphp
+                <div class="folder-card" onclick="selectFolder('{{ addslashes($group->name) }}', '{{ $folderHash }}')" id="folder-{{ $folderHash }}">
                     <div class="folder-icon-wrap">
                         <div class="folder-tab"></div>
                         <div class="folder-back"></div>
@@ -31,29 +35,46 @@
                         </div>
                     </div>
                     <div class="folder-info">
-                        <h3 class="folder-name">{{ $groupName }}</h3>
-                        <span class="folder-count"><i class="fas fa-bed"></i> {{ $items->count() }} {{ $items->count() === 1 ? 'Stay' : 'Stays' }}</span>
+                        <h3 class="folder-name">{{ $group->name }}</h3>
+                        <span class="folder-count"><i class="fas fa-bed"></i> {{ $staysCount }} {{ $staysCount === 1 ? 'Stay' : 'Stays' }}</span>
                     </div>
                 </div>
             @endforeach
         </div>
 
         <!-- Dynamic Stays Display Segments -->
-        @foreach($groups as $groupName => $items)
-            <div class="group-rooms-segment" id="segment-{{ md5($groupName) }}" style="display:none; opacity:0; transition: opacity 0.3s ease;">
+        @foreach($groups as $group)
+            @php
+                $folderHash = md5($group->name);
+                $items = $wishlistGrouped[$group->name] ?? collect([]);
+            @endphp
+            <div class="group-rooms-segment" id="segment-{{ $folderHash }}" style="display:none; opacity:0; transition: opacity 0.3s ease;">
                 <div class="segment-header">
-                    <h2>Collection: <span class="group-highlight">{{ $groupName }}</span></h2>
-                    <button class="back-folders-btn" onclick="showAllFolders()"><i class="fas fa-arrow-left"></i> View All Collections</button>
+                    <h2>Collection: <span class="group-highlight">{{ $group->name }}</span></h2>
+                    
+                    <div style="display:flex; gap:12px;">
+                        <button class="delete-collection-btn" onclick="deleteCollection('{{ addslashes($group->name) }}', '{{ $folderHash }}')">
+                            <i class="fas fa-trash-alt"></i> Delete Collection
+                        </button>
+                        <button class="back-folders-btn" onclick="showAllFolders()"><i class="fas fa-arrow-left"></i> View All Collections</button>
+                    </div>
                 </div>
                 
                 <div class="rooms-grid">
-                    @foreach($items as $item)
-                        @if($item->room)
-                            <div class="wishlist-card-wrapper" id="wishlist-card-{{ $item->room->id }}" style="transition: all 0.4s ease;">
-                                @include('home.partials.room_card', ['room' => $item->room])
-                            </div>
-                        @endif
-                    @endforeach
+                    @if($items->isEmpty())
+                        <div class="empty-folder-inside" style="grid-column: 1 / -1; text-align: center; padding: 60px 24px; background: rgba(255,255,255,0.01); border-radius: 20px; border: 1px dashed var(--border-color);">
+                            <i class="fa-solid fa-bed" style="font-size: 36px; color: var(--text-muted); opacity: 0.3; margin-bottom: 12px;"></i>
+                            <p style="color: var(--text-muted); margin: 0; font-size: 14.5px; font-weight: 500;">No stays added to this collection yet.</p>
+                        </div>
+                    @else
+                        @foreach($items as $item)
+                            @if($item->room)
+                                <div class="wishlist-card-wrapper" id="wishlist-card-{{ $item->room->id }}" style="transition: all 0.4s ease;">
+                                    @include('home.partials.room_card', ['room' => $item->room])
+                                </div>
+                            @endif
+                        @endforeach
+                    @endif
                 </div>
             </div>
         @endforeach
@@ -68,14 +89,330 @@
     --text-primary: #1e293b;
     --text-muted: #64748b;
     --border-color: rgba(0, 0, 0, 0.05);
+
+    /* Room Card Compatibility Fallbacks */
+    --border: rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --accent: #6366f1;
+    --body-text: #1e293b;
+    --body-muted: #64748b;
 }
 
 body.dark-mode {
     --wishlist-bg: #0b0b14;
-    --card-bg: #111122;
+    --card-bg: #1e1e30;
     --text-primary: #f1f5f9;
     --text-muted: #94a3b8;
-    --border-color: rgba(255, 255, 255, 0.05);
+    --border-color: rgba(255, 255, 255, 0.08);
+
+    /* Room Card Dark-Mode Fallbacks */
+    --border: rgba(255, 255, 255, 0.08);
+    --accent: #818cf8;
+    --body-text: #f1f5f9;
+    --body-muted: #94a3b8;
+}
+
+body.dark-mode .folder-card {
+    background: #273043;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .folder-card:hover {
+    background: #313c54;
+    border-color: rgba(248, 113, 113, 0.5);
+}
+
+/* ── Premium Compact Room Card (Auto Height) ── */
+.room-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    max-width: 275px;
+    margin: 0 auto;
+    width: 100%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
+}
+
+.room-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* Slider Container */
+.room-image-slider {
+    position: relative;
+    height: 165px;
+    overflow: hidden;
+    background: #f1f5f9;
+    flex-shrink: 0;
+    border-radius: 18px 18px 0 0;
+}
+
+.slides-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.slide-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    display: none;
+}
+
+.slide-img.active {
+    opacity: 1;
+    z-index: 1;
+    display: block;
+}
+
+/* Hover Chevron Navigation arrows */
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) scale(0.85);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1e293b;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    outline: none;
+}
+
+.slider-btn:hover {
+    background: #ffffff;
+    color: var(--accent);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.room-card:hover .slider-btn {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+}
+
+.prev-btn {
+    left: 12px;
+}
+
+.next-btn {
+    right: 12px;
+}
+
+/* ── Wishlist Heart Button inside top-right corner of image ── */
+.wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 15;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    outline: none;
+}
+
+.wishlist-btn:hover {
+    transform: scale(1.1);
+    background: #ffffff;
+    color: #ef4444;
+}
+
+.wishlist-btn.active {
+    color: #ef4444;
+    background: #ffffff;
+}
+
+body.dark-mode .wishlist-btn {
+    background: rgba(15, 23, 42, 0.8);
+    color: #94a3b8;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .wishlist-btn:hover,
+body.dark-mode .wishlist-btn.active {
+    background: #0f172a;
+    color: #f87171;
+}
+
+/* ── Room Card Contents ── */
+.room-card-content {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--card-bg);
+    border-top: none;
+}
+
+/* First Row: Room Name & Review (Right Side) */
+.room-title-review-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.room-title-link {
+    text-decoration: none;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.room-card-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--body-text);
+    margin: 0;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    line-height: 1.25;
+    transition: color 0.15s ease;
+}
+
+.room-card:hover .room-card-title {
+    color: var(--accent);
+}
+
+.room-card-review {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--body-text);
+    flex-shrink: 0;
+}
+
+.room-card-review .star-icon {
+    color: #f59e0b;
+    font-size: 11px;
+}
+
+.room-card-review .no-review-text {
+    font-size: 11px;
+    color: var(--body-muted);
+    font-weight: 550;
+    white-space: nowrap;
+}
+
+/* Second Row: Room Type and Space Type */
+.room-type-space-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--body-muted);
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.room-property-type {
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.room-space-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.dot-separator {
+    color: var(--border);
+    font-size: 8px;
+}
+
+/* Third Row: Price below Type and Space Type */
+.room-card-price-row {
+    display: flex;
+    align-items: center;
+    font-size: 11px;
+    color: var(--body-muted);
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.room-card-price-row .price-val {
+    font-size: 15px;
+    font-weight: 850;
+    color: var(--body-text);
+    margin-right: 2px;
+}
+
+/* Fourth Row: Compact Footer details */
+.room-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--body-muted);
+    font-weight: 600;
+}
+
+.room-location,
+.room-guests {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.room-location {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 150px;
+}
+
+.room-location i {
+    color: #ef4444;
+}
+
+.room-guests i {
+    color: var(--accent);
 }
 
 .wishlist-container {
@@ -269,6 +606,29 @@ body.dark-mode {
     color: #f87171;
 }
 
+.delete-collection-btn {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.delete-collection-btn:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
 .back-folders-btn {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -341,6 +701,7 @@ body.dark-mode {
     }
 
     // Refactor heart active clicks to fade out in real-time on this gallery
+    // Note: Folder count is updated or left active without auto-deleting the collection folder!
     function toggleWishlist(event, roomId) {
         event.stopPropagation();
         event.preventDefault();
@@ -365,15 +726,30 @@ body.dark-mode {
                 if (wrapper) {
                     wrapper.classList.add('removed');
                     setTimeout(() => {
+                        // Crucial: Cache segment reference BEFORE deleting elements from the DOM!
+                        const segment = wrapper.closest('.group-rooms-segment');
                         wrapper.remove();
                         
-                        // Check if segment is now empty
-                        const segment = wrapper.closest('.group-rooms-segment');
                         if (segment) {
                             const remaining = segment.querySelectorAll('.wishlist-card-wrapper');
                             if (remaining.length === 0) {
-                                // Reload page or fallback to show empty folder state
-                                window.location.reload();
+                                const grid = segment.querySelector('.rooms-grid');
+                                if (grid) {
+                                    grid.innerHTML = `
+                                        <div class="empty-folder-inside" style="grid-column: 1 / -1; text-align: center; padding: 60px 24px; background: rgba(255,255,255,0.01); border-radius: 20px; border: 1px dashed var(--border-color);">
+                                            <i class="fa-solid fa-bed" style="font-size: 36px; color: var(--text-muted); opacity: 0.3; margin-bottom: 12px;"></i>
+                                            <p style="color: var(--text-muted); margin: 0; font-size: 14.5px; font-weight: 500;">No stays added to this collection yet.</p>
+                                        </div>
+                                    `;
+                                }
+                            }
+                            
+                            // Dynamically update the count inside folder card list
+                            const segmentId = segment.id.replace('segment-', '');
+                            const folderCountEl = document.querySelector(`#folder-${segmentId} .folder-count`);
+                            if (folderCountEl) {
+                                const newCount = remaining.length;
+                                folderCountEl.innerHTML = `<i class="fas fa-bed"></i> ${newCount} ${newCount === 1 ? 'Stay' : 'Stays'}`;
                             }
                         }
                     }, 400);
@@ -383,6 +759,119 @@ body.dark-mode {
         .catch(err => {
             console.error("Failed to delete wishlist item:", err);
         });
+    }
+
+    // Explicitly delete collection folders and sync grid UI
+    function deleteCollection(groupName, hash) {
+        if (!confirm(`Are you sure you want to permanently delete the collection folder "${groupName}"?`)) {
+            return;
+        }
+
+        fetch('/wishlist/group', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ name: groupName })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Fade out drawer
+                const segment = document.getElementById(`segment-${hash}`);
+                if (segment) {
+                    segment.style.opacity = '0';
+                    setTimeout(() => {
+                        segment.style.display = 'none';
+                    }, 300);
+                }
+
+                // Shrink and fade out folder card from folders list
+                const folderCard = document.getElementById(`folder-${hash}`);
+                if (folderCard) {
+                    folderCard.style.transform = 'scale(0.8)';
+                    folderCard.style.opacity = '0';
+                    setTimeout(() => {
+                        folderCard.remove();
+                        
+                        // Show all folders
+                        const folders = document.getElementById('foldersGrid');
+                        if (folders) {
+                            folders.style.display = 'grid';
+                            
+                            const remaining = folders.querySelectorAll('.folder-card');
+                            if (remaining.length === 0) {
+                                window.location.reload();
+                            }
+                        }
+                    }, 300);
+                }
+            } else {
+                alert(data.message || "An error occurred.");
+            }
+        })
+        .catch(err => {
+            console.error("Delete group error:", err);
+        });
+    }
+
+    // Image Slider Navigation - Prev Slide helper
+    function prevSlide(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        const btn = event.currentTarget;
+        const slider = btn.closest('.room-image-slider');
+        if (!slider) return;
+        const container = slider.querySelector('.slides-container');
+        if (!container) return;
+        const slides = container.querySelectorAll('.slide-img');
+        if (slides.length <= 1) return;
+
+        let activeIndex = -1;
+        slides.forEach((slide, index) => {
+            if (slide.classList.contains('active')) {
+                activeIndex = index;
+            }
+        });
+
+        if (activeIndex !== -1) {
+            slides[activeIndex].classList.remove('active');
+
+            let nextIndex = activeIndex - 1;
+            if (nextIndex < 0) nextIndex = slides.length - 1;
+
+            slides[nextIndex].classList.add('active');
+        }
+    }
+
+    // Image Slider Navigation - Next Slide helper
+    function nextSlide(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        const btn = event.currentTarget;
+        const slider = btn.closest('.room-image-slider');
+        if (!slider) return;
+        const container = slider.querySelector('.slides-container');
+        if (!container) return;
+        const slides = container.querySelectorAll('.slide-img');
+        if (slides.length <= 1) return;
+
+        let activeIndex = -1;
+        slides.forEach((slide, index) => {
+            if (slide.classList.contains('active')) {
+                activeIndex = index;
+            }
+        });
+
+        if (activeIndex !== -1) {
+            slides[activeIndex].classList.remove('active');
+
+            let nextIndex = activeIndex + 1;
+            if (nextIndex >= slides.length) nextIndex = 0;
+
+            slides[nextIndex].classList.add('active');
+        }
     }
 </script>
 @endsection

@@ -11,6 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('wishlist_groups', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('name');
+            $table->timestamps();
+
+            // Each user can only have one group of a given name
+            $table->unique(['user_id', 'name']);
+        });
+
         Schema::create('wishlists', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
@@ -18,7 +28,7 @@ return new class extends Migration
             $table->string('group_name');
             $table->timestamps();
 
-            // Unique composite index to ensure one room can only belong to a single group per user
+            // A room can only be wishlisted in one group per user
             $table->unique(['user_id', 'room_id']);
         });
     }
@@ -29,5 +39,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('wishlists');
+        Schema::dropIfExists('wishlist_groups');
     }
 };

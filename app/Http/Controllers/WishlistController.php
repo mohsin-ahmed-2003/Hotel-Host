@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Wishlist;
+use App\Models\WishlistGroup;
 use App\Models\Room;
 use Illuminate\Http\Request;
 
 class WishlistController extends Controller
 {
     /**
-     * Display the My Wishlists dashboard page, grouping properties by collection name.
+     * Display the My Wishlists dashboard page, showing all groups and their wishlisted stays.
      */
     public function index()
     {
@@ -18,7 +19,10 @@ class WishlistController extends Controller
             return redirect()->route('auth')->with('error', 'Please log in to view your wishlist.');
         }
 
-        // Fetch user's wishlist rooms with rich relations for preview cards
+        // Fetch all of the user's custom collection folders
+        $groups = WishlistGroup::where('user_id', $userId)->get();
+
+        // Fetch all wishlisted room details
         $wishlistItems = Wishlist::with([
             'room.photos',
             'room.roomPrice',
@@ -29,9 +33,9 @@ class WishlistController extends Controller
         ->where('user_id', $userId)
         ->get();
 
-        $groups = $wishlistItems->groupBy('group_name');
+        $wishlistGrouped = $wishlistItems->groupBy('group_name');
 
-        return view('wishlist.index', compact('groups'));
+        return view('wishlist.index', compact('groups', 'wishlistGrouped'));
     }
 
     /**
@@ -44,9 +48,8 @@ class WishlistController extends Controller
             return response()->json([]);
         }
 
-        $groups = Wishlist::where('user_id', $userId)
-            ->distinct()
-            ->pluck('group_name')
+        $groups = WishlistGroup::where('user_id', $userId)
+            ->pluck('name')
             ->values();
 
         return response()->json($groups);
@@ -72,10 +75,6 @@ class WishlistController extends Controller
         ]);
 
         $roomId = $request->room_id;
-        $groupName = trim($request->input('group_name', 'My Favorites'));
-        if (empty($groupName)) {
-            $groupName = 'My Favorites';
-        }
 
         // Check if this room is already wishlisted by the user
         $existing = Wishlist::where('user_id', $userId)
@@ -84,6 +83,7 @@ class WishlistController extends Controller
 
         if ($existing) {
             // Already wishlisted, so untoggle and delete directly!
+            // Crucial: The group in wishlist_groups is NOT deleted.
             $existing->delete();
             return response()->json([
                 'success' => true,
@@ -106,18 +106,59 @@ class WishlistController extends Controller
             $groupName = 'My Favorites';
         }
 
-        // Otherwise, add it to the designated collection group
+        // Ensure the folder exists in wishlist_groups first
+        $group = WishlistGroup::firstOrCreate([
+            'user_id' => $userId,
+            'name' => $groupName
+        ]);
+
+        // Add the stay to the designated folder group
         Wishlist::create([
             'user_id' => $userId,
             'room_id' => $roomId,
-            'group_name' => $groupName
+            'group_name' => $group->name
         ]);
 
         return response()->json([
             'success' => true,
             'status' => 'added',
-            'group' => $groupName,
-            'message' => "Room added to collection: {$groupName}!"
+            'group' => $group->name,
+            'message' => "Room added to collection: {$group->name}!"
+        ]);
+    }
+
+    /**
+     * Dedicated Action to delete a wishlist collection folder and all its associated stays.
+     */
+    public function deleteGroup(Request $request)
+    {
+        $userId = session('user_id');
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please log in to manage your collections.'
+            ], 401);
+        }
+
+        $request->validate([
+            'name' => 'required|string'
+        ]);
+
+        $groupName = trim($request->name);
+
+        // Delete the folder group itself
+        WishlistGroup::where('user_id', $userId)
+            ->where('name', $groupName)
+            ->delete();
+
+        // Delete all wishlist stay items belonging to this folder group
+        Wishlist::where('user_id', $userId)
+            ->where('group_name', $groupName)
+            ->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Collection folder '{$groupName}' successfully deleted."
         ]);
     }
 }

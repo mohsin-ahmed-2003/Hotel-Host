@@ -173,5 +173,6 @@ Route::middleware('web')->group(function () {
     Route::get('/wishlist', [\App\Http\Controllers\WishlistController::class, 'index'])->name('wishlist.index');
     Route::get('/wishlist/groups', [\App\Http\Controllers\WishlistController::class, 'getGroups'])->name('wishlist.groups');
     Route::post('/wishlist/toggle', [\App\Http\Controllers\WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::delete('/wishlist/group', [\App\Http\Controllers\WishlistController::class, 'deleteGroup'])->name('wishlist.delete_group');
 });
 
