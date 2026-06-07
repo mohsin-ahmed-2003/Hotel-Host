@@ -69,6 +69,7 @@ class EmailVerificationController extends Controller
 
     private function loginUser(User $user): void
     {
+        \Illuminate\Support\Facades\Auth::login($user);
         session()->put('user_id', $user->id);
         session()->put('user', (object) $user->only([
             'id','name','email','phone','role','profile_image',

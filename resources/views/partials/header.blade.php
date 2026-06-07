@@ -320,6 +320,7 @@
                         <a href="/trips">Trips</a>
                         <a href="/reservations">Reservations</a>
                         <a href="/wishlist">Wishlist</a>
+                        <a href="/subscriptions">Subscription plan</a>
                         <a href="{{ route('user.properties') }}">Your Property</a>
                         <div class="header-dropdown-divider"></div>
                         <a href="/profile">My Profile</a>

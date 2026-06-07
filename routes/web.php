@@ -166,6 +166,38 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::post('/rooms/settings', [\App\Http\Controllers\Admin\RoomController::class, 'updateSettings'])->name('rooms.settings.update');
     Route::delete('/rooms/photo/{id}', [\App\Http\Controllers\Admin\RoomController::class, 'deletePhoto'])->name('rooms.photo.delete');
     Route::resource('rooms', \App\Http\Controllers\Admin\RoomController::class);
+
+    // Subscription Plans
+    Route::resource('subscription-plans', \App\Http\Controllers\Admin\SubscriptionPlanController::class);
+    
+    // User Subscriptions
+    Route::get('/user-subscriptions', [\App\Http\Controllers\Admin\UserSubscriptionController::class, 'index'])->name('user-subscriptions.index');
+});
+
+// User Subscription Routes
+Route::middleware('web')->group(function () {
+    Route::get('/subscriptions', [\App\Http\Controllers\SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::match(['GET', 'POST'], '/subscriptions/{plan}/checkout', [\App\Http\Controllers\SubscriptionController::class, 'checkout'])->name('subscriptions.checkout');
+
+    Route::get('/subscriptions/history', [\App\Http\Controllers\SubscriptionController::class, 'history'])->name('subscriptions.history');
+    Route::post('/subscriptions/{id}/unsubscribe', [\App\Http\Controllers\SubscriptionController::class, 'unsubscribe'])->name('subscriptions.unsubscribe');
+
+    // Subscription Payment Routes
+    Route::post('/payment/subscription/paypal/initiate', [\App\Http\Controllers\SubscriptionPaymentController::class, 'initiatePaypal'])->name('payment.subscription.paypal.initiate');
+    Route::get('/payment/subscription/paypal/success', [\App\Http\Controllers\SubscriptionPaymentController::class, 'paypalSuccess'])->name('payment.subscription.paypal.success');
+    Route::get('/payment/subscription/paypal/cancel', [\App\Http\Controllers\SubscriptionPaymentController::class, 'paypalCancel'])->name('payment.subscription.paypal.cancel');
+
+    Route::post('/payment/subscription/stripe/initiate', [\App\Http\Controllers\SubscriptionPaymentController::class, 'initiateStripe'])->name('payment.subscription.stripe.initiate');
+    Route::get('/payment/subscription/stripe/success', [\App\Http\Controllers\SubscriptionPaymentController::class, 'stripeSuccess'])->name('payment.subscription.stripe.success');
+    Route::get('/payment/subscription/stripe/cancel', [\App\Http\Controllers\SubscriptionPaymentController::class, 'stripeCancel'])->name('payment.subscription.stripe.cancel');
+
+    Route::post('/payment/subscription/easebuzz/initiate', [\App\Http\Controllers\SubscriptionPaymentController::class, 'initiateEasebuzz'])->name('payment.subscription.easebuzz.initiate');
+    Route::post('/payment/subscription/easebuzz/success', [\App\Http\Controllers\SubscriptionPaymentController::class, 'easebuzzSuccess'])->name('payment.subscription.easebuzz.success');
+    Route::post('/payment/subscription/easebuzz/cancel', [\App\Http\Controllers\SubscriptionPaymentController::class, 'easebuzzCancel'])->name('payment.subscription.easebuzz.cancel');
+
+    Route::post('/payment/subscription/razorpay/initiate', [\App\Http\Controllers\SubscriptionPaymentController::class, 'initiateRazorpay'])->name('payment.subscription.razorpay.initiate');
+    Route::post('/payment/subscription/razorpay/success', [\App\Http\Controllers\SubscriptionPaymentController::class, 'razorpaySuccess'])->name('payment.subscription.razorpay.success');
+    Route::post('/payment/subscription/razorpay/cancel', [\App\Http\Controllers\SubscriptionPaymentController::class, 'razorpayCancel'])->name('payment.subscription.razorpay.cancel');
 });
 
 // Wishlist Routes

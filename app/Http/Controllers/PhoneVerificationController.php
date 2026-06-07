@@ -136,6 +136,7 @@ class PhoneVerificationController extends Controller
         $pending->delete();
 
         // Set session
+        \Illuminate\Support\Facades\Auth::login($user);
         session()->put('user_id', $user->id);
         session()->put('user', (object) $user->only([
             'id','name','email','phone','role','profile_image',

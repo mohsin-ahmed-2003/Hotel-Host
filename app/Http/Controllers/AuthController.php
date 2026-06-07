@@ -84,6 +84,7 @@ class AuthController extends Controller
             'email_verify_token' => Str::random(64),
         ]);
 
+        \Illuminate\Support\Facades\Auth::login($user);
         session()->put('user_id', $user->id);
         session()->put('user', (object) $user->only([
             'id','name','email','phone','role','profile_image',
@@ -137,6 +138,7 @@ class AuthController extends Controller
 
         RateLimiter::clear($throttleKey);
 
+        \Illuminate\Support\Facades\Auth::login($user);
         session()->put('user_id', $user->id);
         session()->put('user', (object) $user->only([
             'id','name','email','phone','role','profile_image',
@@ -149,6 +151,7 @@ class AuthController extends Controller
 
     public function logout()
     {
+        \Illuminate\Support\Facades\Auth::logout();
         session()->forget(['user_id', 'user']);
         return redirect('/')->with('success', 'You have been logged out successfully.');
     }
