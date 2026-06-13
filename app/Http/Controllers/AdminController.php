@@ -14,17 +14,103 @@ class AdminController extends Controller
 
     // ─── Dashboard ───────────────────────────────────────────────────────────
 
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        $totalUsers    = User::where('role', 'user')->count();
-        $totalAdmins   = User::where('role', 'admin')->count();
-        $totalSubAdmins = User::where('role', 'sub_admin')->count();
+        $filter = $request->input('filter', 'all');
+        $queryFilter = function ($q) use ($filter) {
+            $now = \Carbon\Carbon::now();
+            switch ($filter) {
+                case 'today':
+                    $q->whereDate('created_at', $now->toDateString());
+                    break;
+                case 'yesterday':
+                    $q->whereDate('created_at', $now->subDay()->toDateString());
+                    break;
+                case 'this_week':
+                    $q->whereBetween('created_at', [$now->startOfWeek()->toDateTimeString(), $now->endOfWeek()->toDateTimeString()]);
+                    break;
+                case 'this_month':
+                    $q->whereBetween('created_at', [$now->startOfMonth()->toDateTimeString(), $now->endOfMonth()->toDateTimeString()]);
+                    break;
+                case 'previous_month':
+                    $start = $now->copy()->subMonth()->startOfMonth();
+                    $end = $now->copy()->subMonth()->endOfMonth();
+                    $q->whereBetween('created_at', [$start->toDateTimeString(), $end->toDateTimeString()]);
+                    break;
+                case 'this_year':
+                    $q->whereBetween('created_at', [$now->startOfYear()->toDateTimeString(), $now->endOfYear()->toDateTimeString()]);
+                    break;
+                case 'previous_year':
+                    $start = $now->copy()->subYear()->startOfYear();
+                    $end = $now->copy()->subYear()->endOfYear();
+                    $q->whereBetween('created_at', [$start->toDateTimeString(), $end->toDateTimeString()]);
+                    break;
+            }
+        };
+
+        $totalUsers    = User::where('role', 'user')->where($queryFilter)->count();
+        $totalAdmins   = User::where('role', 'admin')->where($queryFilter)->count();
+        $totalSubAdmins = User::where('role', 'sub_admin')->where($queryFilter)->count();
         $totalAll      = $totalUsers + $totalAdmins + $totalSubAdmins;
 
-        $recentUsers = User::latest()->take(5)->get();
+        $recentUsers = User::where($queryFilter)->latest()->take(5)->get();
+
+        $totalRooms = \App\Models\Room::where($queryFilter)->count();
+        $liveRooms = \App\Models\Room::where('status', 'approved')->where($queryFilter)->count();
+        
+        $totalReservations = \App\Models\Reservation::where($queryFilter)->count();
+        $reservationRevenue = \App\Models\Reservation::where('status', 'success')->where($queryFilter)->sum('total_amount');
+        
+        $activeSubscriptions = \App\Models\UserSubscription::where('status', 'active')->where($queryFilter)->count();
+        $subscriptionRevenue = \App\Models\UserSubscription::where('status', '!=', 'pending')->where($queryFilter)->sum('price');
+        
+        $totalEarnings = $reservationRevenue + $subscriptionRevenue;
+
+        $defaultCurrencyCode = \App\Models\SiteSetting::get('default_currency', 'USD');
+        $currencySymbol = \App\Models\Currency::where('currency_code', $defaultCurrencyCode)->value('symbol') ?? '$';
+
+        // Chart Data (Last 6 Months)
+        $months = [];
+        $userGrowth = [];
+        $reservationData = [];
+        $subscriptionData = [];
+        
+        for ($i = 5; $i >= 0; $i--) {
+            $date = \Carbon\Carbon::now()->startOfMonth()->subMonths($i);
+            $monthLabel = $date->format('M Y');
+            $months[] = $monthLabel;
+            
+            $start = $date->copy()->startOfMonth();
+            $end = $date->copy()->endOfMonth();
+            
+            $userGrowth[] = User::whereBetween('created_at', [$start, $end])->count();
+            $reservationData[] = \App\Models\Reservation::where('status', 'success')
+                                            ->whereBetween('created_at', [$start, $end])
+                                            ->sum('total_amount');
+            $subscriptionData[] = \App\Models\UserSubscription::where('status', '!=', 'pending')
+                                                  ->whereBetween('created_at', [$start, $end])
+                                                  ->sum('price');
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'totalUsers' => number_format($totalUsers),
+                'totalRooms' => number_format($totalRooms),
+                'liveRooms' => number_format($liveRooms),
+                'totalReservations' => number_format($totalReservations),
+                'reservationRevenue' => number_format($reservationRevenue, 2),
+                'activeSubscriptions' => number_format($activeSubscriptions),
+                'subscriptionRevenue' => number_format($subscriptionRevenue, 2),
+                'totalEarnings' => number_format($totalEarnings, 2),
+                'currencySymbol' => $currencySymbol
+            ]);
+        }
 
         return view('admin.dashboard', compact(
-            'totalUsers', 'totalAdmins', 'totalSubAdmins', 'totalAll', 'recentUsers'
+            'totalUsers', 'totalAdmins', 'totalSubAdmins', 'totalAll', 'recentUsers',
+            'totalRooms', 'liveRooms', 'totalReservations', 'reservationRevenue',
+            'activeSubscriptions', 'subscriptionRevenue', 'totalEarnings',
+            'months', 'userGrowth', 'reservationData', 'subscriptionData', 'filter', 'currencySymbol'
         ));
     }
 

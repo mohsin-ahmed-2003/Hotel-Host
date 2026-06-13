@@ -1,415 +1,411 @@
 @extends('admin.layout')
 
 @section('title', 'Dashboard')
-@section('page-title', 'Dashboard')
-@section('page-subtitle', 'Overview of your application')
+@section('page-title', 'Overview')
+@section('page-subtitle', 'Platform Statistics & Revenue')
 
 @section('styles')
-<style>
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 28px;
-    }
+    <style>
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 24px;
+        }
 
-    .stat-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 24px;
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        position: relative;
-        overflow: hidden;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
+        .custom-select-wrap {
+            position: relative;
+        }
 
-    .stat-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-    }
+        .filter-select {
+            padding: 0 16px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            min-width: 180px;
+            box-sizing: border-box;
+        }
 
-    .stat-card::after {
-        content: '';
-        position: absolute;
-        top: 0; right: 0;
-        width: 80px; height: 80px;
-        border-radius: 50%;
-        opacity: 0.06;
-        transform: translate(20px, -20px);
-    }
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
 
-    .stat-card.total::after  { background: #6366f1; }
-    .stat-card.users::after  { background: #10b981; }
-    .stat-card.admins::after { background: #f59e0b; }
-    .stat-card.sub::after    { background: #3b82f6; }
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
 
-    .stat-icon {
-        width: 52px; height: 52px;
-        border-radius: 14px;
-        display: flex; align-items: center; justify-content: center;
-        flex-shrink: 0;
-        font-size: 22px;
-    }
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-    .stat-icon.total  { background: #ede9fe; }
-    .stat-icon.users  { background: #dcfce7; }
-    .stat-icon.admins { background: #fef3c7; }
-    .stat-icon.sub    { background: #dbeafe; }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
 
-    .stat-info {}
-    .stat-value {
-        font-size: 32px;
-        font-weight: 800;
-        color: var(--text);
-        line-height: 1;
-        margin-bottom: 4px;
-    }
-    .stat-label {
-        font-size: 13px;
-        color: var(--text-muted);
-        font-weight: 500;
-    }
-    .stat-trend {
-        font-size: 11px;
-        font-weight: 600;
-        margin-top: 4px;
-        color: var(--success);
-    }
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
 
-    .bottom-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-    }
+        .icon-users {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+        }
 
-    @media (max-width: 900px) {
-        .bottom-grid { grid-template-columns: 1fr; }
-    }
+        .icon-rooms {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
 
-    .chart-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 24px;
-    }
+        .icon-res {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
 
-    .chart-card-title {
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--text);
-        margin-bottom: 6px;
-    }
+        .icon-sub {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
 
-    .chart-card-sub {
-        font-size: 13px;
-        color: var(--text-muted);
-        margin-bottom: 24px;
-    }
+        .icon-earn {
+            background: rgba(236, 72, 153, 0.1);
+            color: #ec4899;
+        }
 
-    .chart-wrap {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+        .stat-details {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+        }
 
-    .chart-center-label {
-        position: absolute;
-        text-align: center;
-        pointer-events: none;
-    }
+        .stat-value {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 2px;
+        }
 
-    .chart-center-label .big   { font-size: 28px; font-weight: 800; color: var(--text); }
-    .chart-center-label .small { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    .legend {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 24px;
-    }
+        .stat-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2px;
+        }
 
-    .legend-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
+        .stat-meta span {
+            color: var(--text);
+            font-weight: 700;
+        }
 
-    .legend-left {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 14px;
-        font-weight: 500;
-    }
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
 
-    .legend-dot {
-        width: 12px; height: 12px;
-        border-radius: 4px;
-        flex-shrink: 0;
-    }
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
-    .legend-count {
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--text);
-    }
+        .chart-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
 
-    .legend-bar-wrap {
-        height: 4px;
-        background: var(--bg);
-        border-radius: 4px;
-        margin-top: 4px;
-        overflow: hidden;
-    }
+        .chart-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
 
-    .legend-bar {
-        height: 100%;
-        border-radius: 4px;
-        transition: width 1s ease;
-    }
+        .chart-card-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
 
-    /* Recent users table card */
-    .recent-card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        overflow: hidden;
-    }
+        /* Animation class */
+        .fade-update {
+            animation: fadeUpdate 0.5s ease-in-out;
+        }
 
-    .recent-header {
-        padding: 20px 24px;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
+        @keyframes fadeUpdate {
+            0% {
+                opacity: 0.5;
+                transform: scale(0.98);
+            }
 
-    .recent-title { font-size: 16px; font-weight: 700; }
-
-    .recent-table td { padding: 12px 16px; }
-    .recent-table th { padding: 10px 16px; }
-</style>
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 @endsection
 
 @section('content')
 
-<!-- Stat Cards -->
-<div class="stats-grid">
-    <div class="stat-card total">
-        <div class="stat-icon total">
-            <svg width="22" height="22" fill="none" stroke="#6366f1" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-        </div>
-        <div class="stat-info">
-            <div class="stat-value" data-count="{{ $totalAll }}">0</div>
-            <div class="stat-label">Total Accounts</div>
-        </div>
-    </div>
-
-    <div class="stat-card users">
-        <div class="stat-icon users">
-            <svg width="22" height="22" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-        </div>
-        <div class="stat-info">
-            <div class="stat-value" data-count="{{ $totalUsers }}">0</div>
-            <div class="stat-label">Regular Users</div>
+    <div class="filter-section">
+        <div class="custom-select-wrap">
+            <select class="filter-select" id="dashboardFilter" onchange="updateDashboard()">
+                <option value="all" {{ $filter === 'all' ? 'selected' : '' }}>All Time</option>
+                <option value="today" {{ $filter === 'today' ? 'selected' : '' }}>Today</option>
+                <option value="yesterday" {{ $filter === 'yesterday' ? 'selected' : '' }}>Yesterday</option>
+                <option value="this_week" {{ $filter === 'this_week' ? 'selected' : '' }}>This Week</option>
+                <option value="this_month" {{ $filter === 'this_month' ? 'selected' : '' }}>This Month</option>
+                <option value="previous_month" {{ $filter === 'previous_month' ? 'selected' : '' }}>Previous Month</option>
+                <option value="this_year" {{ $filter === 'this_year' ? 'selected' : '' }}>This Year</option>
+                <option value="previous_year" {{ $filter === 'previous_year' ? 'selected' : '' }}>Previous Year</option>
+            </select>
         </div>
     </div>
 
-    <div class="stat-card admins">
-        <div class="stat-icon admins">
-            <svg width="22" height="22" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-        </div>
-        <div class="stat-info">
-            <div class="stat-value" data-count="{{ $totalAdmins }}">0</div>
-            <div class="stat-label">Admins</div>
-        </div>
-    </div>
-
-    <div class="stat-card sub">
-        <div class="stat-icon sub">
-            <svg width="22" height="22" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-            </svg>
-        </div>
-        <div class="stat-info">
-            <div class="stat-value" data-count="{{ $totalSubAdmins }}">0</div>
-            <div class="stat-label">Sub Admins</div>
-        </div>
-    </div>
-</div>
-
-<!-- Bottom Grid: Chart + Recent Users -->
-<div class="bottom-grid">
-
-    <!-- Pie Chart -->
-    <div class="chart-card">
-        <div class="chart-card-title">User Distribution</div>
-        <div class="chart-card-sub">Breakdown by role across all accounts</div>
-
-        <div class="chart-wrap">
-            <canvas id="roleChart" width="220" height="220"></canvas>
-            <div class="chart-center-label">
-                <div class="big">{{ $totalAll }}</div>
-                <div class="small">Total</div>
+    <!-- Stat Cards -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card" id="card-users">
+            <div class="stat-icon icon-users"><i class="fas fa-users"></i></div>
+            <div class="stat-details">
+                <div class="stat-value" id="val-users">{{ number_format($totalUsers) }}</div>
+                <div class="stat-label">Regular Users</div>
             </div>
         </div>
 
-        <div class="legend">
-            @php
-                $legendItems = [
-                    ['label' => 'Regular Users', 'count' => $totalUsers,     'color' => '#10b981'],
-                    ['label' => 'Admins',         'count' => $totalAdmins,    'color' => '#f59e0b'],
-                    ['label' => 'Sub Admins',     'count' => $totalSubAdmins, 'color' => '#3b82f6'],
-                ];
-            @endphp
-            @foreach($legendItems as $item)
-            <div>
-                <div class="legend-item">
-                    <div class="legend-left">
-                        <div class="legend-dot" style="background:{{ $item['color'] }};"></div>
-                        {{ $item['label'] }}
-                    </div>
-                    <div class="legend-count">{{ $item['count'] }}</div>
-                </div>
-                <div class="legend-bar-wrap">
-                    <div class="legend-bar"
-                         style="background:{{ $item['color'] }};width:0%;"
-                         data-width="{{ $totalAll > 0 ? round(($item['count'] / $totalAll) * 100) : 0 }}%">
-                    </div>
+        <div class="stat-card" id="card-rooms">
+            <div class="stat-icon icon-rooms"><i class="fas fa-home"></i></div>
+            <div class="stat-details">
+                <div class="stat-value" id="val-rooms">{{ number_format($totalRooms) }}</div>
+                <div class="stat-label">Total Rooms</div>
+                <div class="stat-meta">
+                    Approved: <span id="val-live-rooms">{{ number_format($liveRooms) }}</span>
                 </div>
             </div>
-            @endforeach
+        </div>
+
+        <div class="stat-card" id="card-res">
+            <div class="stat-icon icon-res"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-details">
+                <div class="stat-value" id="val-res">{{ number_format($totalReservations) }}</div>
+                <div class="stat-label">Reservations</div>
+                <div class="stat-meta">
+                    Revenue:&nbsp;<span
+                        id="val-res-rev">{{ $currencySymbol }}{{ number_format($reservationRevenue, 2) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card" id="card-sub">
+            <div class="stat-icon icon-sub"><i class="fas fa-medal"></i></div>
+            <div class="stat-details">
+                <div class="stat-value" id="val-sub">{{ number_format($activeSubscriptions) }}</div>
+                <div class="stat-label">Active Subs</div>
+                <div class="stat-meta">
+                    Revenue:&nbsp;<span
+                        id="val-sub-rev">{{ $currencySymbol }}{{ number_format($subscriptionRevenue, 2) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card" id="card-earn">
+            <div class="stat-icon icon-earn"><i class="fas fa-wallet"></i></div>
+            <div class="stat-details">
+                <div class="stat-value" id="val-earn">{{ $currencySymbol }}{{ number_format($totalEarnings, 2) }}</div>
+                <div class="stat-label">Platform Revenue</div>
+            </div>
         </div>
     </div>
 
-    <!-- Recent Users -->
-    <div class="recent-card">
-        <div class="recent-header">
-            <div class="recent-title">Recent Accounts</div>
-            <a href="{{ route('admin.users') }}" class="btn btn-outline btn-sm">View All</a>
+    <!-- Charts Grid -->
+    <div class="charts-grid">
+        <!-- Revenue Chart -->
+        <div class="chart-card">
+            <div class="chart-card-title">Revenue Overview</div>
+            <div class="chart-card-sub">Monthly earnings from Reservations & Subscriptions (Last 6 Months)</div>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="revenueChart"></canvas>
+            </div>
         </div>
-        <div class="table-wrap">
-            <table class="recent-table">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Role</th>
-                        <th>Joined</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($recentUsers as $user)
-                    <tr>
-                        <td>
-                            <div class="user-cell">
-                                <div class="user-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
-                                <div>
-                                    <div class="user-cell-name">{{ $user->name }}</div>
-                                    <div class="user-cell-email">{{ $user->email }}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td><span class="badge badge-{{ $user->role }}">{{ ucfirst(str_replace('_',' ',$user->role)) }}</span></td>
-                        <td style="font-size:12px;color:var(--text-muted);">{{ $user->created_at?->format('d M Y') }}</td>
-                    </tr>
-                    @empty
-                    <tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:30px;">No accounts yet.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
+
+        <!-- User Growth Chart -->
+        <div class="chart-card">
+            <div class="chart-card-title">User Growth</div>
+            <div class="chart-card-sub">New accounts registered (Last 6 Months)</div>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="userChart"></canvas>
+            </div>
         </div>
     </div>
 
-</div>
 @endsection
 
 @section('scripts')
-<script>
-    // ── Count-up animation ──
-    document.querySelectorAll('.stat-value[data-count]').forEach(el => {
-        const target = parseInt(el.dataset.count);
-        if (target === 0) { el.textContent = '0'; return; }
-        let current = 0;
-        const step = Math.ceil(target / 40);
-        const timer = setInterval(() => {
-            current = Math.min(current + step, target);
-            el.textContent = current;
-            if (current >= target) clearInterval(timer);
-        }, 30);
-    });
+    <script>
+        // Setup Charts
+        Chart.defaults.color = 'var(--text-muted)';
+        Chart.defaults.font.family = "'Inter', sans-serif";
 
-    // ── Legend bar animation ──
-    setTimeout(() => {
-        document.querySelectorAll('.legend-bar').forEach(bar => {
-            bar.style.width = bar.dataset.width;
+        const months = @json($months);
+        const reservationData = @json($reservationData);
+        const subscriptionData = @json($subscriptionData);
+        const userGrowth = @json($userGrowth);
+        const currencySymbol = '{!! $currencySymbol !!}';
+
+        // Revenue Chart (Bar)
+        const ctxRev = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctxRev, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: `Reservations (${currencySymbol})`,
+                        data: reservationData,
+                        backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                        borderRadius: 4
+                    },
+                    {
+                        label: `Subscriptions (${currencySymbol})`,
+                        data: subscriptionData,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                animation: { duration: 1000, easing: 'easeOutQuart' }
+            }
         });
-    }, 300);
 
-    // ── Pie Chart (pure canvas, no library) ──
-    const canvas  = document.getElementById('roleChart');
-    const ctx     = canvas.getContext('2d');
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2;
-    const radius  = 85;
-    const inner   = 55;
+        // User Growth Chart (Line)
+        const ctxUser = document.getElementById('userChart').getContext('2d');
 
-    const data = [
-        { value: {{ $totalUsers }},     color: '#10b981', label: 'Users' },
-        { value: {{ $totalAdmins }},    color: '#f59e0b', label: 'Admins' },
-        { value: {{ $totalSubAdmins }}, color: '#3b82f6', label: 'Sub Admins' },
-    ];
+        // Create gradient
+        const gradient = ctxUser.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
+        gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
 
-    const total = data.reduce((s, d) => s + d.value, 0);
+        const userChart = new Chart(ctxUser, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'New Users',
+                    data: userGrowth,
+                    borderColor: '#6366f1',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#6366f1',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { precision: 0 } },
+                    x: { grid: { display: false } }
+                },
+                plugins: {
+                    legend: { display: false }
+                },
+                animation: { duration: 1000, easing: 'easeOutQuart' }
+            }
+        });
 
-    function drawChart(progress) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // AJAX Filter Update
+        function updateDashboard() {
+            const filter = document.getElementById('dashboardFilter').value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('filter', filter);
 
-        if (total === 0) {
-            // Empty state ring
-            ctx.beginPath();
-            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-            ctx.arc(cx, cy, inner, Math.PI * 2, 0, true);
-            ctx.fillStyle = '#e2e8f0';
-            ctx.fill();
-            return;
+            const cards = document.querySelectorAll('.stat-card');
+            cards.forEach(card => {
+                card.classList.remove('fade-update');
+                card.style.opacity = '0.5';
+            });
+
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('val-users').innerText = data.totalUsers;
+                    document.getElementById('val-rooms').innerText = data.totalRooms;
+                    document.getElementById('val-live-rooms').innerText = data.liveRooms;
+                    document.getElementById('val-res').innerText = data.totalReservations;
+                    document.getElementById('val-res-rev').innerText = data.currencySymbol + data.reservationRevenue;
+                    document.getElementById('val-sub').innerText = data.activeSubscriptions;
+                    document.getElementById('val-sub-rev').innerText = data.currencySymbol + data.subscriptionRevenue;
+                    document.getElementById('val-earn').innerText = data.currencySymbol + data.totalEarnings;
+
+                    cards.forEach(card => {
+                        card.style.opacity = '1';
+                        // Trigger reflow
+                        void card.offsetWidth;
+                        card.classList.add('fade-update');
+                    });
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    cards.forEach(card => { card.style.opacity = '1'; });
+                });
         }
-
-        let startAngle = -Math.PI / 2;
-        const gap = 0.03;
-
-        data.forEach(slice => {
-            if (slice.value === 0) return;
-            const sliceAngle = (slice.value / total) * Math.PI * 2 * progress;
-
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, radius, startAngle + gap, startAngle + sliceAngle - gap);
-            ctx.arc(cx, cy, inner, startAngle + sliceAngle - gap, startAngle + gap, true);
-            ctx.closePath();
-            ctx.fillStyle = slice.color;
-            ctx.fill();
-
-            startAngle += sliceAngle;
-        });
-    }
-
-    // Animate draw
-    let progress = 0;
-    const animTimer = setInterval(() => {
-        progress = Math.min(progress + 0.04, 1);
-        drawChart(progress);
-        if (progress >= 1) clearInterval(animTimer);
-    }, 16);
-</script>
+    </script>
 @endsection

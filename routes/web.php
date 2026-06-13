@@ -23,6 +23,7 @@ Route::resource('users', UserController::class);
 Route::get('/', [HomeController::class, 'index'])->name('homepage');
 
 Route::middleware('web')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/user/properties', [\App\Http\Controllers\UserPropertyController::class, 'index'])->name('user.properties');
     Route::get('/trips', [\App\Http\Controllers\UserReservationController::class, 'trips'])->name('user.trips');
     Route::get('/reservations', [\App\Http\Controllers\UserReservationController::class, 'reservations'])->name('user.reservations');
