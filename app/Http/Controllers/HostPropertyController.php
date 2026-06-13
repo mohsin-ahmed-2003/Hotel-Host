@@ -25,6 +25,32 @@ class HostPropertyController extends Controller
 
     public function start()
     {
+        $user = auth()->user();
+        
+        if (!$user) {
+            return redirect()->route('auth')->with('error', 'Please login to host a property.');
+        }
+
+        if (!$user->email_verified || !$user->phone_verified) {
+            return redirect()->route('user.profile')->with('error', 'Please verify your email and phone number before hosting a property.');
+        }
+
+        // Check subscription and limits
+        $activeSubscription = \App\Models\UserSubscription::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->where('end_date', '>', now())
+            ->first();
+
+        if (!$activeSubscription) {
+            return redirect()->route('subscriptions.index')->with('error', 'Please subscribe to a plan to host properties.');
+        }
+
+        $hostedCount = Room::where('user_id', $user->id)->count();
+
+        if ($hostedCount >= $activeSubscription->hosting_allowed) {
+            return redirect()->route('subscriptions.index')->with('error', 'Please upgrade to a higher plan to host more properties.');
+        }
+
         $room = Room::create([
             'user_id' => session('user_id'),
             'status' => 'draft',

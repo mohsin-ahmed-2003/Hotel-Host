@@ -289,7 +289,7 @@
             box-shadow: var(--card-shadow);
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 20px;
         }
 
         .sidebar-room-card {
@@ -537,7 +537,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @if(session('error'))
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 Swal.fire({
                     toast: true,
                     position: 'top-end',
@@ -569,58 +569,58 @@
 
                         <!-- PayPal Option -->
                         @if(\App\Models\SiteSetting::get('paypal_enabled') === '1')
-                        <div class="payment-card active" onclick="selectPaymentMethod('PayPal')" id="card-PayPal">
-                            <img src="{{ asset('images/paypal-logo-png.png') }}" alt="PayPal">
-                            <span class="payment-card-text">PayPal</span>
-                        </div>
+                            <div class="payment-card active" onclick="selectPaymentMethod('PayPal')" id="card-PayPal">
+                                <img src="{{ asset('images/paypal-logo-png.png') }}" alt="PayPal">
+                                <span class="payment-card-text">PayPal</span>
+                            </div>
                         @else
-                        <script>
-                            // If PayPal is disabled, make sure it is not the default selected method
-                            document.addEventListener('DOMContentLoaded', function() {
-                                if(typeof selectedPayment !== 'undefined' && selectedPayment === 'PayPal') {
-                                    // select next available
-                                    const stripeCard = document.getElementById('card-Stripe');
-                                    if(stripeCard) stripeCard.click();
-                                }
-                            });
-                        </script>
+                            <script>
+                                // If PayPal is disabled, make sure it is not the default selected method
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    if (typeof selectedPayment !== 'undefined' && selectedPayment === 'PayPal') {
+                                        // select next available
+                                        const stripeCard = document.getElementById('card-Stripe');
+                                        if (stripeCard) stripeCard.click();
+                                    }
+                                });
+                            </script>
                         @endif
 
                         <!-- Stripe Option -->
                         @if(\App\Models\SiteSetting::get('stripe_enabled') === '1')
-                        <div class="payment-card" onclick="selectPaymentMethod('Stripe')" id="card-Stripe">
-                            <img src="{{ asset('images/stripe_payment.png') }}" alt="Stripe">
-                            <span class="payment-card-text">Stripe</span>
-                        </div>
+                            <div class="payment-card" onclick="selectPaymentMethod('Stripe')" id="card-Stripe">
+                                <img src="{{ asset('images/stripe_payment.png') }}" alt="Stripe">
+                                <span class="payment-card-text">Stripe</span>
+                            </div>
                         @else
-                        <script>
-                            // If Stripe is disabled, ensure it is not selected
-                            document.addEventListener('DOMContentLoaded', function() {
-                                if(typeof selectedPayment !== 'undefined' && selectedPayment === 'Stripe') {
-                                    const nextCard = document.getElementById('card-Easebuzz') || document.getElementById('card-Razorpay');
-                                    if(nextCard) nextCard.click();
-                                }
-                            });
-                        </script>
+                            <script>
+                                // If Stripe is disabled, ensure it is not selected
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    if (typeof selectedPayment !== 'undefined' && selectedPayment === 'Stripe') {
+                                        const nextCard = document.getElementById('card-Easebuzz') || document.getElementById('card-Razorpay');
+                                        if (nextCard) nextCard.click();
+                                    }
+                                });
+                            </script>
                         @endif
 
                         <!-- Easebuzz Option -->
                         @if(\App\Models\SiteSetting::get('easebuzz_enabled') === '1')
-                        <div class="payment-card" onclick="selectPaymentMethod('Easebuzz')" id="card-Easebuzz">
-                            <!-- Custom CSS-styled Easebuzz brand icon -->
-                            <div class="easebuzz-custom-logo">
-                                <span>ease<span class="eb-green">buzz</span></span>
+                            <div class="payment-card" onclick="selectPaymentMethod('Easebuzz')" id="card-Easebuzz">
+                                <!-- Custom CSS-styled Easebuzz brand icon -->
+                                <div class="easebuzz-custom-logo">
+                                    <span>ease<span class="eb-green">buzz</span></span>
+                                </div>
+                                <span class="payment-card-text">Easebuzz</span>
                             </div>
-                            <span class="payment-card-text">Easebuzz</span>
-                        </div>
                         @endif
 
                         <!-- Razorpay Option -->
                         @if(\App\Models\SiteSetting::get('razorpay_enabled') === '1')
-                        <div class="payment-card" onclick="selectPaymentMethod('Razorpay')" id="card-Razorpay">
-                            <img src="{{ asset('images/razorpay.png') }}" alt="Razorpay">
-                            <span class="payment-card-text">Razorpay</span>
-                        </div>
+                            <div class="payment-card" onclick="selectPaymentMethod('Razorpay')" id="card-Razorpay">
+                                <img src="{{ asset('images/razorpay.png') }}" alt="Razorpay">
+                                <span class="payment-card-text">Razorpay</span>
+                            </div>
                         @endif
                     </div>
 
@@ -793,44 +793,56 @@
                 <div class="sidebar-divider"></div>
 
                 <!-- Policies Summary Card -->
-                <div style="background: rgba(255, 255, 255, 0.02); border: 1.5px solid var(--checkout-border); border-radius: 16px; padding: 16px; margin: 0 0 16px 0; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--card-shadow);">
-                    <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--checkout-muted); letter-spacing: 0.5px; margin-bottom: 2px;">
-                        <i class="fas fa-shield-alt" style="color: var(--checkout-accent); margin-right: 4px;"></i> Policies & Terms
+                <div
+                    style="background: rgba(255, 255, 255, 0.02); border: 1.5px solid var(--checkout-border); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--card-shadow);">
+                    <div
+                        style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--checkout-muted); letter-spacing: 0.5px; margin-bottom: 2px;">
+                        <i class="fas fa-shield-alt" style="color: var(--checkout-accent); margin-right: 4px;"></i> Policies
+                        & Terms
                     </div>
-                    
+
                     <!-- Booking Type -->
                     <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
                         <div style="display: flex; align-items: center; gap: 8px; color: var(--checkout-muted);">
                             <i class="fas fa-bolt" style="color: #10b981; width: 16px; text-align: center;"></i>
                             <span>Booking Type</span>
                         </div>
-                        <span style="font-weight: 700; color: var(--checkout-text);">{{ $room->booking_type ?: 'Instant Booking' }}</span>
+                        <span
+                            style="font-weight: 700; color: var(--checkout-text);">{{ $room->booking_type ?: 'Instant Booking' }}</span>
                     </div>
 
                     <!-- Checkout Policy Time -->
                     <div style="display: flex; align-items: center; justify-content: space-between; font-size: 13px;">
                         <div style="display: flex; align-items: center; gap: 8px; color: var(--checkout-muted);">
-                            <i class="far fa-clock" style="color: var(--checkout-accent); width: 16px; text-align: center;"></i>
+                            <i class="far fa-clock"
+                                style="color: var(--checkout-accent); width: 16px; text-align: center;"></i>
                             <span>Checkout Time</span>
                         </div>
-                        <span style="font-weight: 700; color: var(--checkout-text);">{{ $room->checkout_policy ?: '11:00 AM' }}</span>
+                        <span
+                            style="font-weight: 700; color: var(--checkout-text);">{{ $room->checkout_policy ?: '11:00 AM' }}</span>
                     </div>
 
                     <!-- Cancellation Policy -->
-                    <div style="display: flex; align-items: flex-start; justify-content: space-between; font-size: 13px; border-top: 1px dashed var(--checkout-border); padding-top: 10px; margin-top: 2px;">
-                        <div style="display: flex; align-items: center; gap: 8px; color: var(--checkout-muted); margin-top: 2px;">
+                    <div
+                        style="display: flex; align-items: flex-start; justify-content: space-between; font-size: 13px; border-top: 1px dashed var(--checkout-border); padding-top: 10px; margin-top: 2px;">
+                        <div
+                            style="display: flex; align-items: center; gap: 8px; color: var(--checkout-muted); margin-top: 2px;">
                             <i class="fas fa-calendar-times" style="color: #ef4444; width: 16px; text-align: center;"></i>
                             <span>Cancellation</span>
                         </div>
                         <div style="text-align: right;">
                             @if($room->custom_cancellation)
-                                <span style="font-weight: 700; color: #10b981; display: block;">{{ $room->free_cancellation_days }} Days Free</span>
-                                <span style="font-size: 10px; color: var(--checkout-muted);">{{ $room->cancellation_fee }}% fee after</span>
+                                <span
+                                    style="font-weight: 700; color: #10b981; display: block;">{{ $room->free_cancellation_days }}
+                                    Days Free</span>
+                                <span style="font-size: 10px; color: var(--checkout-muted);">{{ $room->cancellation_fee }}% fee
+                                    after</span>
                             @else
                                 @php
                                     $policy = $room->cancellation_policy ?: 'Flexible';
                                 @endphp
-                                <span style="font-weight: 700; color: var(--checkout-text); display: block;">{{ $policy }}</span>
+                                <span
+                                    style="font-weight: 700; color: var(--checkout-text); display: block;">{{ $policy }}</span>
                                 <span style="font-size: 10px; color: var(--checkout-muted);">
                                     @if($policy === 'Flexible')
                                         Free up to 24h before
@@ -851,17 +863,17 @@
                     $enhancementsTotal = 0;
                     $enhancementsTooltipHtml = '';
                     if (!empty($priceData['selectedEnhancements'])) {
-                        foreach($priceData['selectedEnhancements'] as $e) {
+                        foreach ($priceData['selectedEnhancements'] as $e) {
                             $enhancementsTotal += $e['item_total'];
-                            
+
                             $enhancementsTooltipHtml .= '
-                                <div style="display:flex; justify-content:space-between; gap:16px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:6px; margin-bottom:6px; font-size:11px;">
-                                    <div style="text-align:left;">
-                                        <div style="font-weight:700; color:#fff;">' . e($e['item_name']) . '</div>
-                                        <div style="color:#94a3b8; font-size:10px;">(' . $guests . ' guest' . ($guests > 1 ? 's' : '') . ' &times; ' . $e['days_count'] . ' day' . ($e['days_count'] > 1 ? 's' : '') . ')</div>
-                                    </div>
-                                    <div style="font-weight:700; color:#10b981; align-self:center;">' . $room->currency_symbol . number_format($e['item_total'], 2) . '</div>
-                                </div>';
+                                                                                            <div style="display:flex; justify-content:space-between; gap:16px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:6px; margin-bottom:6px; font-size:11px;">
+                                                                                                <div style="text-align:left;">
+                                                                                                    <div style="font-weight:700; color:#fff;">' . e($e['item_name']) . '</div>
+                                                                                                    <div style="color:#94a3b8; font-size:10px;">(' . $guests . ' guest' . ($guests > 1 ? 's' : '') . ' &times; ' . $e['days_count'] . ' day' . ($e['days_count'] > 1 ? 's' : '') . ')</div>
+                                                                                                </div>
+                                                                                                <div style="font-weight:700; color:#10b981; align-self:center;">' . $room->currency_symbol . number_format($e['item_total'], 2) . '</div>
+                                                                                            </div>';
                         }
                         $enhancementsTooltipHtml = preg_replace('/border-bottom:1px solid rgba\(255,255,255,0\.1\); padding-bottom:6px; margin-bottom:6px;"(?=[^>]*>[ \s\n]*$)/', '"', $enhancementsTooltipHtml);
                     }
@@ -875,7 +887,7 @@
                         <span class="price-label">
                             <i class="far fa-calendar-alt" style="color: var(--checkout-accent); margin-right: 10px;"></i>
                             <span>{{ $room->currency_symbol }}{{ number_format($priceData['avgBaseRate'], 2) }} x
-                            {{ $priceData['totalNights'] }} night{{ $priceData['totalNights'] > 1 ? 's' : '' }}</span>
+                                {{ $priceData['totalNights'] }} night{{ $priceData['totalNights'] > 1 ? 's' : '' }}</span>
                         </span>
                         <span
                             class="price-value">{{ $room->currency_symbol }}{{ number_format($priceData['totalRawBasePrice'], 2) }}</span>
@@ -887,15 +899,22 @@
                             <span class="price-label">
                                 <div class="tooltip-container" style="cursor:help;">
                                     <i class="fas fa-tag" style="color: #10b981; margin-right: 10px;"></i>
-                                    <span style="border-bottom: 1px dashed rgba(16, 185, 129, 0.3); font-weight: 600;">Discount</span>
+                                    <span
+                                        style="border-bottom: 1px dashed rgba(16, 185, 129, 0.3); font-weight: 600;">Discount</span>
                                     <div class="custom-tooltip">
-                                        <div style="font-weight: 700; margin-bottom: 6px; color: #10b981; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 4px;">Discounts Applied</div>
+                                        <div
+                                            style="font-weight: 700; margin-bottom: 6px; color: #10b981; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 4px;">
+                                            Discounts Applied</div>
                                         <div style="display: flex; justify-content: space-between; gap: 16px; font-size: 11px;">
                                             <div style="text-align: left;">
-                                                <div style="font-weight: 700; color: #fff;">{{ $priceData['discountAppliedName'] }}</div>
-                                                <div style="color: #94a3b8; font-size: 10px; font-weight: normal;">Promotional rate savings</div>
+                                                <div style="font-weight: 700; color: #fff;">
+                                                    {{ $priceData['discountAppliedName'] }}
+                                                </div>
+                                                <div style="color: #94a3b8; font-size: 10px; font-weight: normal;">Promotional
+                                                    rate savings</div>
                                             </div>
-                                            <div style="font-weight: 700; color: #10b981; align-self: center;">-{{ $priceData['discountPct'] }}%</div>
+                                            <div style="font-weight: 700; color: #10b981; align-self: center;">
+                                                -{{ $priceData['discountPct'] }}%</div>
                                         </div>
                                     </div>
                                 </div>
@@ -930,22 +949,6 @@
                     @endif
 
                     <!-- Site Service fee (if any) -->
-                    @if($priceData['serviceFeeAmt'] > 0)
-                        <div class="price-row">
-                            <span class="price-label">
-                                <div class="tooltip-container" style="cursor:help;">
-                                    <i class="fas fa-info-circle" style="color: var(--checkout-accent); margin-right: 6px;"></i>
-                                    <span style="border-bottom: 1px dashed rgba(0,0,0,0.2); margin-left: 8px;">Service fee</span>
-                                    <div class="custom-tooltip">
-                                        <div style="font-weight:700; margin-bottom:4px; color:#10b981;">Service Fee</div>
-                                        <div style="color:rgba(255,255,255,0.85); line-height:1.4; font-weight:normal;">This amount is non refundable</div>
-                                    </div>
-                                </div>
-                            </span>
-                            <span
-                                class="price-value">{{ $room->currency_symbol }}{{ number_format($priceData['serviceFeeAmt'], 2) }}</span>
-                        </div>
-                    @endif
 
                     <!-- Selected Dining & Enhancements (if any) -->
                     @if($enhancementsTotal > 0)
@@ -953,9 +956,12 @@
                             <span class="price-label">
                                 <div class="tooltip-container" style="cursor:help;">
                                     <i class="fas fa-concierge-bell" style="color: #10b981; margin-right: 14px;"></i>
-                                    <span style="border-bottom: 1px dashed rgba(0,0,0,0.2); font-weight:600;">Dining & Services</span>
+                                    <span style="border-bottom: 1px dashed rgba(0,0,0,0.2); font-weight:600;">Dining &
+                                        Services</span>
                                     <div class="custom-tooltip">
-                                        <div style="font-weight:700; margin-bottom:6px; color:#10b981; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:4px;">Dining & Services Breakdown</div>
+                                        <div
+                                            style="font-weight:700; margin-bottom:6px; color:#10b981; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:4px;">
+                                            Dining & Services Breakdown</div>
                                         {!! $enhancementsTooltipHtml !!}
                                     </div>
                                 </div>
@@ -969,11 +975,31 @@
                     @if($priceData['taxAmt'] > 0)
                         <div class="price-row">
                             <span class="price-label">
-                                <i class="fas fa-file-invoice-dollar" style="color: var(--checkout-accent); margin-right: 10px;"></i>
+                                <i class="fas fa-file-invoice-dollar"
+                                    style="color: var(--checkout-accent); margin-right: 10px;"></i>
                                 <span>Taxes</span>
                             </span>
                             <span
                                 class="price-value">{{ $room->currency_symbol }}{{ number_format($priceData['taxAmt'], 2) }}</span>
+                        </div>
+                    @endif
+
+                    @if($priceData['serviceFeeAmt'] > 0)
+                        <div class="price-row">
+                            <span class="price-label">
+                                <div class="tooltip-container" style="cursor:help;">
+                                    <i class="fas fa-info-circle" style="color: var(--checkout-accent); margin-right: 6px;"></i>
+                                    <span style="border-bottom: 1px dashed rgba(0,0,0,0.2); margin-left: 8px;">Service
+                                        fee</span>
+                                    <div class="custom-tooltip">
+                                        <div style="font-weight:700; margin-bottom:4px; color:#10b981;">Service Fee</div>
+                                        <div style="color:rgba(255,255,255,0.85); line-height:1.4; font-weight:normal;">This
+                                            amount is non refundable</div>
+                                    </div>
+                                </div>
+                            </span>
+                            <span
+                                class="price-value">{{ $room->currency_symbol }}{{ number_format($priceData['serviceFeeAmt'], 2) }}</span>
                         </div>
                     @endif
 

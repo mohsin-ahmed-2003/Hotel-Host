@@ -234,6 +234,53 @@
         body.dark-mode .feature-info::after {
             border-color: #334155 transparent transparent transparent;
         }
+
+        /* ── Toast ── */
+        .toast-container {
+            position: fixed; top: 20px; right: 20px;
+            z-index: 9999;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .toast {
+            position: relative;
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            min-width: 300px; max-width: 400px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            font-size: 14px; font-weight: 500;
+            animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
+            background: #fff;
+        }
+
+        .toast.success { background:#dcfce7; color:#15803d; border-left:4px solid #16a34a; }
+        .toast.error   { background:#fee2e2; color:#b91c1c; border-left:4px solid #dc2626; }
+
+        body.dark-mode .toast.success { background:rgba(16,185,129,0.15); color:#6ee7b7; border-left-color:#10b981; }
+        body.dark-mode .toast.error   { background:rgba(239,68,68,0.15);  color:#fca5a5; border-left-color:#ef4444; }
+
+        .toast-close { background:none; border:none; cursor:pointer; font-size:16px; color:inherit; opacity:0.6; margin-left:auto; }
+        .toast-close:hover { opacity:1; }
+
+        .toast-progress {
+            position:absolute; bottom:0; left:0; height:3px;
+            background:currentColor; opacity:0.3;
+            border-radius:0 0 12px 12px;
+            animation: toastProgress 5s linear forwards;
+        }
+
+        @keyframes toastIn {
+            from { opacity:0; transform:translateX(60px); }
+            to   { opacity:1; transform:translateX(0); }
+        }
+        @keyframes toastOut {
+            from { opacity:1; transform:translateX(0); }
+            to   { opacity:0; transform:translateX(60px); }
+        }
+        @keyframes toastProgress {
+            from { width:100%; } to { width:0%; }
+        }
     </style>
 @endsection
 
@@ -257,12 +304,33 @@
             @endif
         </div>
 
-        @if(session('success'))
-            <div class="alert alert-success"
-                style="background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center; font-weight: 600;">
-                <i class="fas fa-check-circle"></i> {{ session('success') }}
-            </div>
-        @endif
+        <div id="toastContainer" class="toast-container"></div>
+        <script>
+            function showToast(msg, type = 'success') {
+                let c = document.getElementById('toastContainer');
+                if (!c) {
+                    c = document.createElement('div');
+                    c.id = 'toastContainer';
+                    c.className = 'toast-container';
+                    document.body.appendChild(c);
+                }
+                const t = document.createElement('div');
+                t.className = 'toast ' + type;
+                t.innerHTML = `<span>${type==='success'?'✅':'❌'}</span><span style="flex:1">${msg}</span><button class="toast-close" onclick="this.closest('.toast').remove()">✕</button><div class="toast-progress"></div>`;
+                c.appendChild(t);
+                setTimeout(() => { t.style.animation='toastOut 0.4s ease forwards'; setTimeout(()=>t.remove(),400); }, 5000);
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                @if(session('error'))
+                    showToast("{!! addslashes(session('error')) !!}", 'error');
+                @endif
+
+                @if(session('success'))
+                    showToast("{!! addslashes(session('success')) !!}", 'success');
+                @endif
+            });
+        </script>
 
         <div class="pricing-grid">
             @forelse($plans as $plan)

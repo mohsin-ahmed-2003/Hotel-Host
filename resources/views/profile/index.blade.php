@@ -415,12 +415,15 @@
                                 <div id="phoneOtpGroup" style="display:none;margin-top:10px;">
                                     <label class="form-label">Enter Verification Code</label>
                                     <div style="position:relative;">
-                                        <input type="text" id="phoneOtpInput" class="form-control"
-                                               placeholder="000000" maxlength="6" inputmode="numeric"
-                                               style="text-align:center;font-size:20px;font-weight:800;letter-spacing:8px;font-family:'Courier New',monospace;padding-right:80px;">
+                                        <div class="input-wrapper">
+                                            <div class="input-wrapper-clip"></div>
+                                            <input type="text" id="phoneOtpInput"
+                                                   placeholder="000000" maxlength="6" inputmode="numeric"
+                                                   style="text-align:center;font-size:20px;font-weight:800;letter-spacing:8px;font-family:'Courier New',monospace;padding-right:80px;">
+                                        </div>
                                         <button type="button" onclick="verifyPhoneOtp()"
                                             id="verifyPhoneBtn"
-                                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:#16a34a;border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer;font-family:inherit;">
+                                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:10;background:#16a34a;border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer;font-family:inherit;">
                                             Verify
                                         </button>
                                     </div>
@@ -529,6 +532,14 @@
 @endif
 
 <script>
+    // Show toast from session
+    @if(session('success'))
+        showToast("{{ session('success') }}", 'success');
+    @endif
+    @if(session('error'))
+        showToast("{{ session('error') }}", 'error');
+    @endif
+
     // Show toast from query param (e.g. after password reset redirect)
     const _urlParams = new URLSearchParams(window.location.search);
     const _toastMsg  = _urlParams.get('toast');

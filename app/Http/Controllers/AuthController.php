@@ -100,7 +100,7 @@ class AuthController extends Controller
             \Log::error('Welcome email failed: ' . $e->getMessage());
         }
 
-        return redirect('/')->with('success', 'Welcome, ' . $user->name . '! Your account has been created.');
+        return redirect()->intended('/')->with('success', 'Welcome, ' . $user->name . '! Your account has been created.');
     }
 
     public function login(Request $request)
@@ -146,7 +146,7 @@ class AuthController extends Controller
             'email_verified','phone_verified'
         ]));
 
-        return redirect('/')->with('success', 'Welcome back, ' . $user->name . '!');
+        return redirect()->intended('/')->with('success', 'Welcome back, ' . $user->name . '!');
     }
 
     public function logout()

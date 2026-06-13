@@ -101,13 +101,14 @@ class RoomController extends Controller
         return response()->json($result);
     }
 
-    /**
-     * Show the booking page with selected dates and payment breakdown.
-     */
     public function booking_page(Request $request, Room $room)
     {
         if ($request->isMethod('get')) {
-            return redirect()->route('rooms.show', $room->id)->with('error', 'Booking session expired. Please select your dates again.');
+            if (session()->has('pending_booking_' . $room->id)) {
+                $request->merge(session('pending_booking_' . $room->id));
+            } else {
+                return redirect()->route('rooms.show', $room->id)->with('error', 'Booking session expired. Please select your dates again.');
+            }
         }
 
         $request->validate([
@@ -117,6 +118,12 @@ class RoomController extends Controller
             'enhancement_ids' => 'nullable',
             'enhancement_dates' => 'nullable',
         ]);
+
+        if (!auth()->check()) {
+            session(['pending_booking_' . $room->id => $request->all()]);
+            session(['url.intended' => route('rooms.booking_page', $room->id)]);
+            return redirect()->route('auth')->with('error', 'Please login to continue with your booking.');
+        }
 
         $checkin = $request->input('checkin');
         $checkout = $request->input('checkout');

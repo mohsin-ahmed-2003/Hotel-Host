@@ -2110,8 +2110,20 @@
                             style="display:none; border-top: 1px dashed rgba(255, 255, 255, 0.15); margin-top: 10px; padding-top: 10px;">
                         </div>
 
-                        <button type="submit" class="btn-reserve" style="margin-top: 16px;">Reserve Now</button>
-                        <p class="charge-note">You won't be charged yet</p>
+                        @if(Auth::check() && Auth::id() == $room->user_id)
+                            <div style="margin-top: 16px; padding: 14px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); text-align: center; border-radius: 12px; color: #4f46e5; font-weight: 700; font-family: 'Outfit', sans-serif;">
+                                <i class="fas fa-home me-2"></i> You are the host of this property
+                            </div>
+                        @else
+                            <button type="submit" class="btn-reserve" style="margin-top: 16px;">Reserve Now</button>
+                            <p class="charge-note">
+                                @if(Auth::check())
+                                    You won't be charged yet
+                                @else
+                                    Please login to continue
+                                @endif
+                            </p>
+                        @endif
                     </form>
                 </div>
             </div>
