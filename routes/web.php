@@ -156,6 +156,8 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::resource('amenities', AmenityController::class);
     Route::resource('room-beds', \App\Http\Controllers\Admin\RoomBedController::class);
     Route::resource('room-rules', \App\Http\Controllers\Admin\RoomRuleController::class);
+    Route::resource('countries', \App\Http\Controllers\Admin\CountryController::class);
+    Route::resource('currencies', \App\Http\Controllers\Admin\CurrencyController::class);
 
     // Manage Reservations
     Route::get('/reservations', [\App\Http\Controllers\Admin\ReservationController::class, 'index'])->name('reservations.index');

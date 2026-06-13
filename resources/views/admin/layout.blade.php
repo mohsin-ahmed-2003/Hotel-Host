@@ -1085,6 +1085,30 @@
                 <span class="nav-label">Room Rules</span>
             </a>
 
+            <a href="{{ route('admin.countries.index') }}"
+                class="nav-item {{ request()->routeIs('admin.countries*') ? 'active' : '' }}"
+                data-tooltip="Manage Countries">
+                <span class="nav-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                    </svg>
+                </span>
+                <span class="nav-label">Countries</span>
+            </a>
+
+            <a href="{{ route('admin.currencies.index') }}"
+                class="nav-item {{ request()->routeIs('admin.currencies*') ? 'active' : '' }}"
+                data-tooltip="Manage Currencies">
+                <span class="nav-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                    </svg>
+                </span>
+                <span class="nav-label">Currencies</span>
+            </a>
+
             <a href="{{ route('admin.subscription-plans.index') }}"
                 class="nav-item {{ request()->routeIs('admin.subscription-plans*') ? 'active' : '' }}"
                 data-tooltip="Subscription Plans">
