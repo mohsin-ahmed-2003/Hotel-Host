@@ -97,6 +97,96 @@
         font-size: 12px;
         border-radius: 6px;
     }
+
+    /* Modern Status Dropdown */
+    .custom-status-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .status-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        border: 1.5px solid transparent;
+        transition: all 0.2s;
+        min-width: 115px;
+        user-select: none;
+    }
+
+    .status-trigger svg {
+        width: 14px;
+        height: 14px;
+        transition: transform 0.2s;
+    }
+
+    .custom-status-dropdown.open .status-trigger svg {
+        transform: rotate(180deg);
+    }
+
+    .status-options {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        width: 100%;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        z-index: 50;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-5px);
+        transition: all 0.2s;
+        overflow: hidden;
+    }
+
+    .custom-status-dropdown.open .status-options {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .status-option {
+        padding: 8px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        color: var(--text);
+    }
+
+    .status-option:hover {
+        background: var(--bg-2);
+    }
+
+    .status-approved {
+        background-color: rgba(16, 185, 129, 0.1) !important;
+        color: #10b981 !important;
+        border-color: rgba(16, 185, 129, 0.2) !important;
+    }
+    .status-pending {
+        background-color: rgba(99, 102, 241, 0.1) !important;
+        color: #6366f1 !important;
+        border-color: rgba(99, 102, 241, 0.2) !important;
+    }
+    .status-resubmit {
+        background-color: rgba(245, 158, 11, 0.1) !important;
+        color: #f59e0b !important;
+        border-color: rgba(245, 158, 11, 0.2) !important;
+    }
+    
+    .status-badge-wrapper {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
 </style>
 @endsection
 
@@ -112,6 +202,8 @@
         </a>
     </div>
 </div>
+
+<div id="adminToastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
 
 <div class="card">
     <div class="card-header">
@@ -135,7 +227,9 @@
                     <th>Room Name</th>
                     <th>Host</th>
                     <th>Price</th>
+                    <th style="min-width: 130px;">Room Metrics</th>
                     <th>Created At</th>
+                    <th>Steps Completed</th>
                     <th>Status</th>
                     <th style="text-align: right; padding-right: 24px;">Actions</th>
                 </tr>
@@ -156,15 +250,36 @@
                     <td style="font-weight: 700; color: var(--primary);">
                         {{ $room->currency_symbol }}{{ number_format($room->price, 2) }}
                     </td>
+                    <td>
+                        <div style="font-size:13px; color:var(--text);">
+                            <i class="fas fa-eye" style="color:#64748b; width:16px;"></i> {{ $room->view_count ?? 0 }} Views<br>
+                            <i class="fas fa-check-circle" style="color:#22c55e; width:16px; margin-top:4px;"></i> {{ $room->book_count ?? 0 }} Bookings
+                        </div>
+                    </td>
                     <td style="font-size: 13px;">{{ $room->created_at->format('M d, Y') }}</td>
                     <td>
-                        @if($room->status == 'approved')
-                            <span class="badge bg-success-soft">Approved</span>
-                        @elseif($room->status == 'resubmit')
-                            <span class="badge bg-warning-soft" title="{{ $room->resubmit_reason_text }}">Resubmit</span>
-                        @else
-                            <span class="badge bg-primary-soft">Pending</span>
-                        @endif
+                        @php
+                            $missing = $room->countMissingSteps();
+                            $completed = 6 - $missing;
+                            $status = empty($room->status) ? 'pending' : $room->status;
+                            $statusClass = 'status-' . strtolower($status);
+                        @endphp
+                        <span class="badge" style="background: var(--bg-2); color: var(--text);">
+                            {{ $completed }} / 6
+                        </span>
+                    </td>
+                    <td>
+                        <div class="custom-status-dropdown" id="status-dropdown-{{ $room->id }}" data-original="{{ $status }}">
+                            <div class="status-trigger {{ $statusClass }}" onclick="toggleStatusDropdown({{ $room->id }})">
+                                <span class="status-text">{{ ucfirst($status) }}</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
+                            <div class="status-options">
+                                <div class="status-option" onclick="updateRoomStatus({{ $room->id }}, 'pending', {{ $completed }})">Pending</div>
+                                <div class="status-option" onclick="updateRoomStatus({{ $room->id }}, 'approved', {{ $completed }})">Approved</div>
+                                <div class="status-option" onclick="updateRoomStatus({{ $room->id }}, 'resubmit', {{ $completed }})">Resubmit</div>
+                            </div>
+                        </div>
                     </td>
                     <td style="padding-right: 24px;">
                         <div class="action-btns">
@@ -204,5 +319,104 @@
         document.getElementById('deleteUserName').textContent = name;
         document.getElementById('deleteForm').action = url;
         document.getElementById('deleteModal').classList.add('open');
+    }
+
+    function showToast(type, message) {
+        // Handle backwards compatibility where first argument might be message and second is type
+        if (type !== 'success' && type !== 'error' && type !== 'info' && type !== 'warning') {
+            const temp = type;
+            type = message || 'success';
+            message = temp;
+        }
+
+        const container = document.getElementById('adminToastContainer');
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type === 'error' ? 'danger' : 'success'} shadow-lg border-0 animate__animated animate__fadeInRight`;
+        toast.style.borderRadius = '12px';
+        toast.style.display = 'flex';
+        toast.style.alignItems = 'center';
+        toast.style.gap = '10px';
+        toast.style.padding = '14px 20px';
+        toast.style.margin = '0';
+        toast.style.background = 'var(--card)';
+        toast.style.borderLeft = `4px solid ${type === 'error' ? 'var(--danger)' : 'var(--success)'}`;
+        toast.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)';
+        
+        const iconColor = type === 'error' ? 'var(--danger)' : 'var(--success)';
+        const icon = type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+        toast.innerHTML = `<i class="${icon}" style="color: ${iconColor}; font-size: 18px;"></i> <span style="color: var(--text); font-weight: 600; font-size: 14px;">${message}</span>`;
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.replace('animate__fadeInRight', 'animate__fadeOutRight');
+            setTimeout(() => toast.remove(), 500);
+        }, 4000);
+    }
+
+    // Dropdown Toggling logic
+    function toggleStatusDropdown(id) {
+        // Close all others
+        document.querySelectorAll('.custom-status-dropdown.open').forEach(el => {
+            if (el.id !== 'status-dropdown-' + id) el.classList.remove('open');
+        });
+        document.getElementById('status-dropdown-' + id).classList.toggle('open');
+    }
+
+    // Close on outside click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.custom-status-dropdown')) {
+            document.querySelectorAll('.custom-status-dropdown').forEach(el => el.classList.remove('open'));
+        }
+    });
+
+    async function updateRoomStatus(roomId, status, completedSteps) {
+        const dropdown = document.getElementById('status-dropdown-' + roomId);
+        const trigger = dropdown.querySelector('.status-trigger');
+        const textSpan = trigger.querySelector('.status-text');
+        const originalStatus = dropdown.getAttribute('data-original');
+        
+        // Close dropdown
+        dropdown.classList.remove('open');
+
+        // Client-side validation
+        if (status === 'approved' && completedSteps < 6) {
+            showToast('error', 'Cannot approve. The host has not completed all 6 steps.');
+            return;
+        }
+
+        // Optimistically update UI
+        updateTriggerUI(trigger, textSpan, status);
+
+        try {
+            const response = await fetch(`/admin/rooms/${roomId}/update-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ status: status })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showToast('success', data.message);
+                dropdown.setAttribute('data-original', status);
+            } else {
+                throw new Error(data.message || 'Failed to update status');
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+            showToast('error', error.message || 'An error occurred while updating the status.');
+            // Revert UI on failure
+            updateTriggerUI(trigger, textSpan, originalStatus);
+        }
+    }
+
+    function updateTriggerUI(trigger, textSpan, status) {
+        textSpan.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        trigger.classList.remove('status-approved', 'status-pending', 'status-resubmit');
+        trigger.classList.add('status-' + status.toLowerCase());
     }
 </script>

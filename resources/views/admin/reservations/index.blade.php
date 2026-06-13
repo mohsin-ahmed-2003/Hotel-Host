@@ -1,19 +1,75 @@
 @extends('admin.layout')
 @section('title', 'Manage Reservations')
 
+@section('styles')
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    /* Search Bar Styles */
+    .search-container {
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+    }
+
+    .search-form {
+        display: flex;
+        align-items: center;
+        gap: 0; /* Use 0 to join input and button */
+        background: var(--bg);
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1.5px solid var(--border);
+    }
+
+    .search-input-custom {
+        border: none;
+        background: transparent;
+        padding: 10px 15px;
+        color: var(--text);
+        width: 250px;
+        outline: none;
+    }
+
+    .btn-search {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-search:hover { background: var(--primary-dark); }
+</style>
+@endsection
+
 @section('content')
-    <div class="topbar">
-        <div class="topbar-left">
-            <h2>Manage Reservations</h2>
-            <p>View and track all room bookings</p>
+<div class="page-header">
+    <h1 style="font-size: 24px; font-weight: 700; margin: 0;">Manage Reservations</h1>
+    <div style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">View and track all room bookings</div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">All Reservations</div>
+        <div class="search-container">
+            <form action="{{ route('admin.reservations.index') }}" method="GET" class="search-form">
+                <input type="text" name="search" class="search-input-custom" placeholder="Search ID, Guest, Email, Room..." value="{{ request('search') }}">
+                <button type="submit" class="btn-search">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
         </div>
     </div>
-
-    <div class="page-content" style='padding: 2px;'>
-        <div class="card animate__animated animate__fadeInUp">
-            <div class="card-header">
-                <div class="card-title">All Reservations</div>
-            </div>
 
             <div class="card-body" style="padding:0;">
                 <div class="table-wrap">
@@ -23,7 +79,6 @@
                                 <th>ID</th>
                                 <th>Guest</th>
                                 <th>Room & Host</th>
-                                <th>Room Metrics</th>
                                 <th>Check-in</th>
                                 <th>Check-out</th>
                                 <th>Total</th>
@@ -61,12 +116,6 @@
                                         <strong>{{ $reservation->room->title ?? $reservation->room->name ?? 'Unknown Room' }}</strong>
                                         <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">
                                             Host: {{ $reservation->room->user->name ?? 'Unknown' }}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div style="font-size:13px; color:var(--text);">
-                                            <i class="fas fa-eye" style="color:#64748b; width:16px;"></i> {{ $reservation->room->view_count ?? 0 }} Views<br>
-                                            <i class="fas fa-check-circle" style="color:#22c55e; width:16px; margin-top:4px;"></i> {{ $reservation->room->book_count ?? 0 }} Bookings
                                         </div>
                                     </td>
                                     <td>
@@ -134,5 +183,4 @@
                 @endif
             </div>
         </div>
-    </div>
 @endsection

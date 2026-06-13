@@ -13,7 +13,10 @@ class RoomController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Room::with(['user', 'resubmitReason', 'roomPrice.currencyDetail']);
+        $query = Room::with(['user', 'resubmitReason', 'roomPrice.currencyDetail'])
+            ->withCount(['reservations as book_count' => function($query) {
+                $query->whereIn('status', ['success', 'completed']);
+            }]);
         
         if ($request->search) {
             $searchTerm = $request->search;
@@ -26,6 +29,34 @@ class RoomController extends Controller
 
         $rooms = $query->latest()->paginate(10);
         return view('admin.rooms.index', compact('rooms'));
+    }
+
+    public function updateStatus(Request $request, Room $room)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,pending,resubmit',
+        ]);
+
+        if ($request->status === 'approved') {
+            if ($room->countMissingSteps() > 0) {
+                return response()->json(['success' => false, 'message' => 'Cannot approve room. All 6 steps must be completed.'], 400);
+            }
+        }
+
+        $oldStatus = $room->status;
+        $room->update(['status' => $request->status]);
+
+        if ($oldStatus !== 'approved' && $request->status === 'approved') {
+            try {
+                dispatch(function () use ($room) {
+                    \App\Http\Controllers\EmailController::sendRoomApproved($room);
+                })->afterResponse();
+            } catch (\Exception $e) {
+                \Log::error('Room approved email failed: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Status updated successfully!']);
     }
 
     public function settings()

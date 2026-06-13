@@ -11,11 +11,26 @@ class ReservationController extends Controller
     /**
      * Display a listing of reservations.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $reservations = Reservation::with(['room', 'user'])
-            ->orderBy('id', 'desc')
-            ->paginate(15);
+        $query = Reservation::with(['room', 'user'])->orderBy('id', 'desc');
+
+        if ($request->search) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('id', $searchTerm)
+                  ->orWhereHas('user', function($u) use ($searchTerm) {
+                      $u->where('name', 'like', "%{$searchTerm}%")
+                        ->orWhere('email', 'like', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('room', function($r) use ($searchTerm) {
+                      $r->where('title', 'like', "%{$searchTerm}%")
+                        ->orWhere('name', 'like', "%{$searchTerm}%");
+                  });
+            });
+        }
+
+        $reservations = $query->paginate(15);
 
         return view('admin.reservations.index', compact('reservations'));
     }

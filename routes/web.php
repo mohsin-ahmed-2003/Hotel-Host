@@ -166,6 +166,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::get('/rooms/settings', [\App\Http\Controllers\Admin\RoomController::class, 'settings'])->name('rooms.settings');
     Route::post('/rooms/settings', [\App\Http\Controllers\Admin\RoomController::class, 'updateSettings'])->name('rooms.settings.update');
     Route::delete('/rooms/photo/{id}', [\App\Http\Controllers\Admin\RoomController::class, 'deletePhoto'])->name('rooms.photo.delete');
+    Route::post('/rooms/{room}/update-status', [\App\Http\Controllers\Admin\RoomController::class, 'updateStatus'])->name('rooms.update-status');
     Route::resource('rooms', \App\Http\Controllers\Admin\RoomController::class);
 
     // Subscription Plans
