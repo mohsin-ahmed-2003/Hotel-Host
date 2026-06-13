@@ -59,7 +59,8 @@
         gap: 12px;
     }
 
-        .nav-item-step {
+    .nav-item-step {
+        position: relative;
         padding: 10px 12px;
         border-radius: 12px;
         background: #fff;
@@ -95,6 +96,21 @@
     }
 
     .nav-item-step.completed .step-icon { opacity: 1; }
+
+    .nav-item-step.is-valid::after {
+        content: '\f058'; /* FontAwesome check-circle */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        color: #10b981;
+        background: white;
+        border-radius: 50%;
+        font-size: 14px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        z-index: 2;
+    }
 
     /* Form Content */
     .step-form-content {
@@ -203,7 +219,57 @@
         display: none;
     }
 
-    /* Media Grid */
+    /* Media Grid & Upload Dropzone */
+    .upload-dropzone {
+        border: 2px dashed #cbd5e1;
+        border-radius: 16px;
+        background: #f8fafc;
+        padding: 10px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+    }
+
+    .upload-dropzone:hover {
+        border-color: var(--primary-color);
+        background: rgba(255, 56, 92, 0.04);
+    }
+
+    .upload-dropzone .upload-icon {
+        width: 64px;
+        height: 64px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        color: var(--primary-color);
+        margin-bottom: 8px;
+        transition: transform 0.2s;
+    }
+
+    .upload-dropzone:hover .upload-icon {
+        transform: scale(1.05) translateY(-2px);
+    }
+
+    .upload-dropzone .upload-title {
+        font-weight: 700;
+        font-size: 16px;
+        color: #1e293b;
+    }
+
+    .upload-dropzone .upload-subtitle {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 16px;
+    }
+
     .media-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -643,13 +709,19 @@
                     <h1>Add some photos</h1>
                     <p class="step-desc">{{ $stepSettings['media']->description ?? 'Upload clear photos to attract more guests.' }}</p>
                     
-                    <div class="border rounded-4 p-5 text-center bg-light mb-4" style="border-style: dashed !important; border-width: 2px !important;">
-                        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3 opacity-75"></i>
-                        <h5 class="fw-bold">Upload photos</h5>
-                        <p class="text-muted small">JPG, PNG or WEBP (Max. 5MB each)</p>
-                        <input type="file" name="photos[]" id="photoInput" multiple class="d-none" accept="image/*">
-                        <button type="button" class="btn btn-primary px-4 rounded-pill mt-2" onclick="document.getElementById('photoInput').click()">
-                            <i class="fas fa-plus me-2"></i>Select Photos
+                    <div class="upload-dropzone" onclick="document.getElementById('photoInput').click()">
+                        <div class="upload-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <div class="upload-title">Click to upload photos</div>
+                        <div class="upload-subtitle">JPG, PNG or WEBP (Max. 5MB each)</div>
+                        <input type="file" name="photos[]" id="photoInput" multiple style="display: none;" accept="image/*">
+                        <button type="button" class="btn-next" style="padding: 8px 24px; font-size: 14px; border-radius: 30px;">
+                            Browse Files
                         </button>
                     </div>
 
@@ -1041,7 +1113,64 @@
         if (customToggle) {
             toggleAdminCustomCancellation(customToggle.checked);
         }
+
+        validateAllSteps();
     });
+
+    function validateAllSteps() {
+        // Step 1: Basic
+        const s1 = document.getElementById('step-1');
+        const name = s1.querySelector('input[name="name"]')?.value.trim();
+        const title = s1.querySelector('input[name="title"]')?.value.trim();
+        const pt = s1.querySelector('select[name="property_type_id"]')?.value;
+        const st = s1.querySelector('select[name="space_type_id"]')?.value;
+        toggleValidClass(1, !!(name && title && pt && st));
+
+        // Step 2: Media
+        const hasPhotos = (document.getElementById('photoPreview')?.children.length || 0) > 0 || (document.querySelectorAll('.media-item').length > 0);
+        toggleValidClass(2, hasPhotos);
+
+        // Step 3: Location
+        const s3 = document.getElementById('step-3');
+        const country = s3.querySelector('select[name="country"]')?.value;
+        const city = s3.querySelector('input[name="city"]')?.value.trim();
+        const address = s3.querySelector('input[name="address"]')?.value.trim();
+        toggleValidClass(3, !!((country && city) || address));
+
+        // Step 4: Amenities
+        const s4 = document.getElementById('step-4');
+        const hasAmenities = s4.querySelectorAll('.amenity-card.active').length > 0;
+        const hasBeds = document.querySelectorAll('#bedroomsContainer .bedroom-card').length > 0 || document.querySelectorAll('.bed-item').length > 0;
+        toggleValidClass(4, !!(hasAmenities || hasBeds));
+
+        // Step 5: Pricing
+        const s5 = document.getElementById('step-5');
+        const price = s5.querySelector('input[name="price"]')?.value;
+        const currency = s5.querySelector('select[name="currency"]')?.value;
+        toggleValidClass(5, !!(price > 0 && currency));
+
+        // Step 6: Rules
+        const s6 = document.getElementById('step-6');
+        const bookingType = s6.querySelector('select[name="booking_type"]')?.value;
+        const cancelPolicy = s6.querySelector('select[name="cancellation_policy"]')?.value;
+        toggleValidClass(6, !!(bookingType && cancelPolicy));
+
+        // Step 7: Review
+        // As requested, no tick for the Review step
+        toggleValidClass(7, false);
+    }
+
+    function toggleValidClass(step, isValid) {
+        const nav = document.getElementById('nav-step-' + step);
+        if (nav) {
+            if (isValid) nav.classList.add('is-valid');
+            else nav.classList.remove('is-valid');
+        }
+    }
+
+    document.addEventListener('input', validateAllSteps);
+    document.addEventListener('change', validateAllSteps);
+    document.addEventListener('click', () => setTimeout(validateAllSteps, 100));
 
     function goToStep(step) {
         document.querySelectorAll('.step-section').forEach(s => s.classList.remove('active'));

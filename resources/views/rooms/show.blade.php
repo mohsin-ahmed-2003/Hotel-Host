@@ -1827,53 +1827,56 @@
 
                                     {{-- 4. Custom Discount --}}
                                     @if(isset($discounts['custom']) && ($discounts['custom']['active'] ?? false))
-                                         @php
-                                             $today = strtotime(date('Y-m-d'));
-                                             $activeRules = [];
-                                             $hasExpired = false;
-                                             
-                                             if (!empty($discounts['custom']['rules'])) {
-                                                 foreach ($discounts['custom']['rules'] as $rule) {
-                                                     if (!empty($rule['start_date']) && !empty($rule['end_date'])) {
-                                                         if (strtotime($rule['end_date']) < $today) {
-                                                             $hasExpired = true;
-                                                         } else {
-                                                             $activeRules[] = $rule;
-                                                         }
-                                                     }
-                                                 }
-                                             }
+                                        @php
+                                            $today = strtotime(date('Y-m-d'));
+                                            $activeRules = [];
+                                            $hasExpired = false;
+
+                                            if (!empty($discounts['custom']['rules'])) {
+                                                foreach ($discounts['custom']['rules'] as $rule) {
+                                                    if (!empty($rule['start_date']) && !empty($rule['end_date'])) {
+                                                        if (strtotime($rule['end_date']) < $today) {
+                                                            $hasExpired = true;
+                                                        } else {
+                                                            $activeRules[] = $rule;
+                                                        }
+                                                    }
+                                                }
+                                            }
                                          @endphp
-                                         
-                                         @if(count($activeRules) > 0)
-                                             @foreach($activeRules as $rule)
-                                                 <div class="discount-badge-card custom-period-card animate__animated animate__fadeIn">
-                                                     <div class="badge-icon"><i class="fas fa-umbrella-beach"></i></div>
-                                                     <div class="badge-details">
-                                                         <h4>Seasonal / Promotional Window</h4>
-                                                         <p>Valid for stays between
-                                                             <strong>{{ date('M d, Y', strtotime($rule['start_date'])) }}</strong> and
-                                                             <strong>{{ date('M d, Y', strtotime($rule['end_date'])) }}</strong>.
-                                                         </p>
-                                                     </div>
-                                                     <div class="badge-tag">
-                                                         <span>{{ $rule['percentage'] ?? 20 }}% OFF</span>
-                                                     </div>
-                                                 </div>
-                                             @endforeach
-                                         @else
-                                             <div class="discount-badge-card custom-period-card animate__animated animate__fadeIn" style="border-color: var(--accent); background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(99, 102, 241, 0.08));">
-                                                 <div class="badge-icon" style="color: var(--accent);"><i class="fas fa-envelope-open-text"></i></div>
-                                                 <div class="badge-details">
-                                                     <h4>Comming soon stay tuined with email</h4>
-                                                     <p>Our seasonal custom discount window has concluded. Stay tuned for upcoming premium offers!</p>
-                                                 </div>
-                                                 <div class="badge-tag" style="background: var(--accent); color: #fff;">
-                                                     <span>SOON</span>
-                                                 </div>
-                                             </div>
-                                         @endif
-                                     @endif
+
+                                        @if(count($activeRules) > 0)
+                                            @foreach($activeRules as $rule)
+                                                <div class="discount-badge-card custom-period-card animate__animated animate__fadeIn">
+                                                    <div class="badge-icon"><i class="fas fa-umbrella-beach"></i></div>
+                                                    <div class="badge-details">
+                                                        <h4>Seasonal / Promotional Window</h4>
+                                                        <p>Valid for stays between
+                                                            <strong>{{ date('M d, Y', strtotime($rule['start_date'])) }}</strong> and
+                                                            <strong>{{ date('M d, Y', strtotime($rule['end_date'])) }}</strong>.
+                                                        </p>
+                                                    </div>
+                                                    <div class="badge-tag">
+                                                        <span>{{ $rule['percentage'] ?? 20 }}% OFF</span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <div class="discount-badge-card custom-period-card animate__animated animate__fadeIn"
+                                                style="border-color: var(--accent); background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(99, 102, 241, 0.08));">
+                                                <div class="badge-icon" style="color: var(--accent);"><i
+                                                        class="fas fa-envelope-open-text"></i></div>
+                                                <div class="badge-details">
+                                                    <h4>Comming soon stay tuined with email</h4>
+                                                    <p>Our seasonal custom discount window has concluded. Stay tuned for upcoming premium
+                                                        offers!</p>
+                                                </div>
+                                                <div class="badge-tag" style="background: var(--accent); color: #fff;">
+                                                    <span>SOON</span>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endif
                                 </div>
                             @endif
                         </div>
@@ -2310,9 +2313,9 @@
                                 datesContainer.setAttribute('data-range', currentRange);
 
                                 let datesHtml = `
-                                                                                            <div style="font-size: 10px; font-weight: 700; color: var(--room-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">Select Days:</div>
-                                                                                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 6px;">
-                                                                                        `;
+                                                                                                    <div style="font-size: 10px; font-weight: 700; color: var(--room-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">Select Days:</div>
+                                                                                                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 6px;">
+                                                                                                `;
 
                                 dates.forEach(date => {
                                     const dateVal = formatDateValue(date);
@@ -2327,11 +2330,11 @@
                                     }
 
                                     datesHtml += `
-                                                                                                <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--room-text); cursor: pointer; user-select: none; padding: 4px 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--room-border); border-radius: 6px;">
-                                                                                                    <input type="checkbox" class="enhancement-date-chk-${id}" value="${dateVal}" checked onchange="handleDateSelection(${id})" style="accent-color: #10b981; width: 12px; height: 12px; cursor: pointer;">
-                                                                                                    <span>${dateText}</span>
-                                                                                                </label>
-                                                                                            `;
+                                                                                                        <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--room-text); cursor: pointer; user-select: none; padding: 4px 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--room-border); border-radius: 6px;">
+                                                                                                            <input type="checkbox" class="enhancement-date-chk-${id}" value="${dateVal}" checked onchange="handleDateSelection(${id})" style="accent-color: #10b981; width: 12px; height: 12px; cursor: pointer;">
+                                                                                                            <span>${dateText}</span>
+                                                                                                        </label>
+                                                                                                    `;
                                 });
 
                                 datesHtml += `</div>`;
@@ -2577,7 +2580,7 @@
                     fillOpacity: 0.15,
                     weight: 2,
                     radius: {{ \App\Models\SiteSetting::get('map_radius', 400) }}
-                                            }).addTo(map);
+                                                }).addTo(map);
 
                 // Add a beautiful custom center marker
                 const centerMarker = L.divIcon({
@@ -2962,151 +2965,151 @@
                         const weekendSurcharge = data.totalRawBasePrice - standardTotal;
 
                         let html = `
-                                                                            <div class="pricing-breakdown-card" style="display:flex; flex-direction:column; gap:12px; background:rgba(0,0,0,0.02); border:1px solid var(--room-border); border-radius:14px; padding:16px; font-family:'Outfit',sans-serif; backdrop-filter:blur(10px);">
+                                                                                <div class="pricing-breakdown-card" style="display:flex; flex-direction:column; gap:12px; background:rgba(0,0,0,0.02); border:1px solid var(--room-border); border-radius:14px; padding:16px; font-family:'Outfit',sans-serif; backdrop-filter:blur(10px);">
 
-                                                                                <!-- Standard Nightly Rate Row -->
-                                                                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                                                                    <div style="display:flex; flex-direction:column;">
-                                                                                        <span style="font-size:13px; font-weight:600; color:var(--room-text);">Nightly Rate</span>
-                                                                                        <span style="font-size:11px; color:var(--room-muted);">${symbol}${data.standardBasePrice.toFixed(2)} × ${data.totalNights} night${data.totalNights > 1 ? 's' : ''}</span>
+                                                                                    <!-- Standard Nightly Rate Row -->
+                                                                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                                                                        <div style="display:flex; flex-direction:column;">
+                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Nightly Rate</span>
+                                                                                            <span style="font-size:11px; color:var(--room-muted);">${symbol}${data.standardBasePrice.toFixed(2)} × ${data.totalNights} night${data.totalNights > 1 ? 's' : ''}</span>
+                                                                                        </div>
+                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${standardTotal.toFixed(2)}</span>
                                                                                     </div>
-                                                                                    <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${standardTotal.toFixed(2)}</span>
-                                                                                </div>
-                                                                        `;
+                                                                            `;
 
                         if (weekendSurcharge > 0) {
                             html += `
-                                                                                <!-- Weekend Surcharge Row -->
-                                                                                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                    <div style="display:flex; flex-direction:column;">
-                                                                                        <span style="font-size:13px; font-weight:600; color:var(--room-text);">Weekend Surcharge</span>
-                                                                                        <span style="font-size:11px; color:var(--room-muted);">Additional rate for Fri/Sat nights</span>
+                                                                                    <!-- Weekend Surcharge Row -->
+                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                        <div style="display:flex; flex-direction:column;">
+                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Weekend Surcharge</span>
+                                                                                            <span style="font-size:11px; color:var(--room-muted);">Additional rate for Fri/Sat nights</span>
+                                                                                        </div>
+                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${weekendSurcharge.toFixed(2)}</span>
                                                                                     </div>
-                                                                                    <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${weekendSurcharge.toFixed(2)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                `;
                         } else if (weekendSurcharge < 0) {
                             html += `
-                                                                                <!-- Weekend Discount Row -->
-                                                                                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                    <div style="display:flex; flex-direction:column;">
-                                                                                        <span style="font-size:13px; font-weight:600; color:#10b981;">Weekend Deal</span>
-                                                                                        <span style="font-size:11px; color:#10b981; opacity:0.85;">Lower rate for Fri/Sat nights</span>
+                                                                                    <!-- Weekend Discount Row -->
+                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                        <div style="display:flex; flex-direction:column;">
+                                                                                            <span style="font-size:13px; font-weight:600; color:#10b981;">Weekend Deal</span>
+                                                                                            <span style="font-size:11px; color:#10b981; opacity:0.85;">Lower rate for Fri/Sat nights</span>
+                                                                                        </div>
+                                                                                        <span style="font-size:14px; font-weight:700; color:#10b981;">-${symbol}${Math.abs(weekendSurcharge).toFixed(2)}</span>
                                                                                     </div>
-                                                                                    <span style="font-size:14px; font-weight:700; color:#10b981;">-${symbol}${Math.abs(weekendSurcharge).toFixed(2)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                `;
                         }
 
                         if (data.discountPct > 0) {
                             html += `
-                                                                                <!-- Applied Discount Row -->
-                                                                                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                    <div style="display:flex; flex-direction:column;">
-                                                                                        <span style="font-size:13px; font-weight:600; color:#10b981;">Discount Applied</span>
-                                                                                        <span style="font-size:11px; color:#10b981; opacity:0.85;">${data.discountAppliedName} (-${data.discountPct}%)</span>
+                                                                                    <!-- Applied Discount Row -->
+                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                        <div style="display:flex; flex-direction:column;">
+                                                                                            <span style="font-size:13px; font-weight:600; color:#10b981;">Discount Applied</span>
+                                                                                            <span style="font-size:11px; color:#10b981; opacity:0.85;">${data.discountAppliedName} (-${data.discountPct}%)</span>
+                                                                                        </div>
+                                                                                        <span style="font-size:14px; font-weight:700; color:#10b981;">-${symbol}${data.discountSavings.toFixed(2)}</span>
                                                                                     </div>
-                                                                                    <span style="font-size:14px; font-weight:700; color:#10b981;">-${symbol}${data.discountSavings.toFixed(2)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                `;
                         }
 
                         if (data.cleaningFee > 0) {
                             html += `
-                                                                                <!-- Cleaning Fee Row -->
-                                                                                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                    <div style="display:flex; flex-direction:column;">
-                                                                                        <span style="font-size:13px; font-weight:600; color:var(--room-text);">Cleaning Fee</span>
-                                                                                        <span style="font-size:11px; color:var(--room-muted);">Flat rate sanitization</span>
+                                                                                    <!-- Cleaning Fee Row -->
+                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                        <div style="display:flex; flex-direction:column;">
+                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Cleaning Fee</span>
+                                                                                            <span style="font-size:11px; color:var(--room-muted);">Flat rate sanitization</span>
+                                                                                        </div>
+                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.cleaningFee.toFixed(2)}</span>
                                                                                     </div>
-                                                                                    <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.cleaningFee.toFixed(2)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                `;
                         }
 
                         if (data.extraGuestsFee > 0) {
                             const threshold = {{ $room->roomPrice->additional_pricing['additional_guests']['after_guests'] ?? 2 }};
                             html += `
-                                                                                <!-- Extra Guests Row -->
-                                                                                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                    <div style="display:flex; flex-direction:column;">
-                                                                                        <span style="font-size:13px; font-weight:600; color:var(--room-text);">Extra Guests</span>
-                                                                                        <span style="font-size:11px; color:var(--room-muted);">Surcharge (after ${threshold} guests)</span>
+                                                                                    <!-- Extra Guests Row -->
+                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                        <div style="display:flex; flex-direction:column;">
+                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Extra Guests</span>
+                                                                                            <span style="font-size:11px; color:var(--room-muted);">Surcharge (after ${threshold} guests)</span>
+                                                                                        </div>
+                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.extraGuestsFee.toFixed(2)}</span>
                                                                                     </div>
-                                                                                    <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.extraGuestsFee.toFixed(2)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                `;
                         }
 
                         if (data.selectedEnhancements && data.selectedEnhancements.length > 0) {
                             let tooltipHtml = data.selectedEnhancements.map(e => `
-                                                                        <div style="display:flex; justify-content:space-between; gap:16px; margin-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:6px;">
-                                                                            <span style="opacity:0.9;">${e.item_name} (&times;${guestsCount} guests &times;${e.days_count} day${e.days_count > 1 ? 's' : ''})</span>
-                                                                            <span style="font-weight:700; color:#10b981;">${symbol}${e.item_total.toFixed(2)}</span>
-                                                                        </div>
-                                                                    `).join('');
+                                                                            <div style="display:flex; justify-content:space-between; gap:16px; margin-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:6px;">
+                                                                                <span style="opacity:0.9;">${e.item_name} (&times;${guestsCount} guests &times;${e.days_count} day${e.days_count > 1 ? 's' : ''})</span>
+                                                                                <span style="font-weight:700; color:#10b981;">${symbol}${e.item_total.toFixed(2)}</span>
+                                                                            </div>
+                                                                        `).join('');
                             // remove the last border bottom
                             tooltipHtml = tooltipHtml.replace(/border-bottom:1px solid rgba\(255,255,255,0\.1\); padding-bottom:6px;"(?=[^>]*>[\s\n]*$)/, '"');
 
                             html += `
-                                                                            <!-- Consolidated Enhancements Row -->
-                                                                            <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                <div style="display:flex; flex-direction:column;">
-                                                                                    <div style="display:flex; align-items:center; gap:6px;">
-                                                                                        <span style="font-size:13px; font-weight:600; color:var(--room-text);">Dining & Services</span>
-                                                                                        <div class="tooltip-container" style="cursor:help;">
-                                                                                            <i class="fas fa-info-circle" style="font-size:12px; color:var(--room-muted);"></i>
-                                                                                            <div class="custom-tooltip">
-                                                                                                <div style="font-weight:700; margin-bottom:8px; font-size:11px; text-transform:uppercase; color:var(--room-muted);">Included Items</div>
-                                                                                                ${tooltipHtml}
+                                                                                <!-- Consolidated Enhancements Row -->
+                                                                                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                    <div style="display:flex; flex-direction:column;">
+                                                                                        <div style="display:flex; align-items:center; gap:6px;">
+                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Dining & Services</span>
+                                                                                            <div class="tooltip-container" style="cursor:help;">
+                                                                                                <i class="fas fa-info-circle" style="font-size:12px; color:var(--room-muted);"></i>
+                                                                                                <div class="custom-tooltip">
+                                                                                                    <div style="font-weight:700; margin-bottom:8px; font-size:11px; text-transform:uppercase; color:var(--room-muted);">Included Items</div>
+                                                                                                    ${tooltipHtml}
+                                                                                                </div>
                                                                                             </div>
                                                                                         </div>
+                                                                                        <span style="font-size:11px; color:var(--room-muted);">${data.selectedEnhancements.length} item${data.selectedEnhancements.length > 1 ? 's' : ''} selected</span>
                                                                                     </div>
-                                                                                    <span style="font-size:11px; color:var(--room-muted);">${data.selectedEnhancements.length} item${data.selectedEnhancements.length > 1 ? 's' : ''} selected</span>
+                                                                                    <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.totalEnhancementFee.toFixed(2)}</span>
                                                                                 </div>
-                                                                                <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.totalEnhancementFee.toFixed(2)}</span>
-                                                                            </div>
-                                                                        `;
+                                                                            `;
                         }
 
                         if (data.serviceFeeAmt > 0) {
                             html += `
-                                                                                <!-- Service Fee Row -->
-                                                                                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                    <div style="display:flex; flex-direction:column;">
-                                                                                        <span style="font-size:13px; font-weight:600; color:var(--room-text);">Service Fee</span>
-                                                                                        <span style="font-size:11px; color:var(--room-muted);">Platform maintenance (${data.serviceFeePct}%)</span>
+                                                                                    <!-- Service Fee Row -->
+                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                        <div style="display:flex; flex-direction:column;">
+                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Service Fee</span>
+                                                                                            <span style="font-size:11px; color:var(--room-muted);">Platform maintenance (${data.serviceFeePct}%)</span>
+                                                                                        </div>
+                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.serviceFeeAmt.toFixed(2)}</span>
                                                                                     </div>
-                                                                                    <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.serviceFeeAmt.toFixed(2)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                `;
                         }
 
                         if (data.taxAmt > 0) {
                             const taxLabel = data.taxType === 'percentage' ? `Taxes (${data.taxRate}%)` : 'Taxes';
                             html += `
-                                                                                <!-- Taxes Row -->
-                                                                                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                    <div style="display:flex; flex-direction:column;">
-                                                                                        <span style="font-size:13px; font-weight:600; color:var(--room-text);">Taxes</span>
-                                                                                        <span style="font-size:11px; color:var(--room-muted);">${taxLabel}</span>
+                                                                                    <!-- Taxes Row -->
+                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                        <div style="display:flex; flex-direction:column;">
+                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Taxes</span>
+                                                                                            <span style="font-size:11px; color:var(--room-muted);">${taxLabel}</span>
+                                                                                        </div>
+                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.taxAmt.toFixed(2)}</span>
                                                                                     </div>
-                                                                                    <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.taxAmt.toFixed(2)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                `;
                         }
 
                         html += `
-                                                                                <!-- Total Separator -->
-                                                                                <div style="height:1px; background:var(--room-border); margin:8px 0;"></div>
+                                                                                    <!-- Total Separator -->
+                                                                                    <div style="height:1px; background:var(--room-border); margin:8px 0;"></div>
 
-                                                                                <!-- Final Grand Total -->
-                                                                                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                    <span style="font-size:15px; font-weight:800; color:var(--room-text);">Total Price</span>
-                                                                                    <span style="font-size:18px; font-weight:800; color:#10b981; text-shadow: 0 0 10px rgba(16,185,129,0.1);">${symbol}${data.finalTotal.toFixed(2)}</span>
+                                                                                    <!-- Final Grand Total -->
+                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                        <span style="font-size:15px; font-weight:800; color:var(--room-text);">Total Price</span>
+                                                                                        <span style="font-size:18px; font-weight:800; color:#10b981; text-shadow: 0 0 10px rgba(16,185,129,0.1);">${symbol}${data.finalTotal.toFixed(2)}</span>
+                                                                                    </div>
                                                                                 </div>
-                                                                            </div>
-                                                                        `;
+                                                                            `;
 
                         breakdownEl.innerHTML = html;
                         breakdownEl.style.display = "block";

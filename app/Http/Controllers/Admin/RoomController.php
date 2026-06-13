@@ -14,9 +14,7 @@ class RoomController extends Controller
     public function index(Request $request)
     {
         $query = Room::with(['user', 'resubmitReason', 'roomPrice.currencyDetail'])
-            ->withCount(['reservations as book_count' => function($query) {
-                $query->whereIn('status', ['success', 'completed']);
-            }]);
+            ->withCount('reservations as book_count');
         
         if ($request->search) {
             $searchTerm = $request->search;
