@@ -340,7 +340,9 @@
             border-radius: 16px !important;
             border: 1px solid rgba(37, 99, 235, 0.4) !important;
             box-shadow: 0 15px 40px rgba(37, 99, 235, 0.15) !important;
-            padding: 5px;
+            padding: 10px 15px 10px 10px !important;
+            width: max-content !important;
+            box-sizing: border-box !important;
         }
         .flatpickr-day.is-sunday:not(.flatpickr-disabled):not(.disabled) {
             color: #ef4444 !important; 
@@ -574,12 +576,23 @@
 
         // --- Discounts Scripting ---
         let savedDiscounts = @json($room->roomPrice->discounts ?? null);
-        let discountsState = savedDiscounts || {
+        let defaultDiscounts = {
             last_minute: { active: false, days: 14, percentage: 10 },
             early_bird: { active: false, rules: [] },
             length_of_stay: { active: false, rules: [] },
             custom: { active: false, rules: [] }
         };
+        
+        let discountsState = savedDiscounts || {};
+        discountsState.last_minute = Object.assign({}, defaultDiscounts.last_minute, discountsState.last_minute || {});
+        discountsState.early_bird = Object.assign({}, defaultDiscounts.early_bird, discountsState.early_bird || {});
+        if (!discountsState.early_bird.rules) discountsState.early_bird.rules = [];
+        
+        discountsState.length_of_stay = Object.assign({}, defaultDiscounts.length_of_stay, discountsState.length_of_stay || {});
+        if (!discountsState.length_of_stay.rules) discountsState.length_of_stay.rules = [];
+        
+        discountsState.custom = Object.assign({}, defaultDiscounts.custom, discountsState.custom || {});
+        if (!discountsState.custom.rules) discountsState.custom.rules = [];
 
         // --- Additional Pricing Scripting ---
         let savedAdditionalPricing = @json($room->roomPrice->additional_pricing ?? null);
@@ -790,6 +803,10 @@
                                     window.flatpickrInstances[endPickerKey].clear();
                                     updateRule('custom', idx, 'end_date', '');
                                 }
+                                
+                                setTimeout(() => {
+                                    window.flatpickrInstances[endPickerKey].open();
+                                }, 10);
                             }
                         }
                     }
