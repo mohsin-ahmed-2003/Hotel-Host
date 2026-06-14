@@ -172,6 +172,10 @@ class PaymentController extends Controller
                     'transaction_id' => $captureId
                 ]);
 
+                if ($reservation->room && $reservation->room->user) {
+                    $reservation->room->user->notify(new \App\Notifications\ReservationStatusNotification($reservation, 'new'));
+                }
+
                 // Block the dates
                 $start = Carbon::parse($reservation->checkin);
                 $end = Carbon::parse($reservation->checkout);
@@ -195,6 +199,9 @@ class PaymentController extends Controller
     {
         $reservation = Reservation::findOrFail($request->reservation);
         $reservation->update(['status' => 'failed']);
+        if ($reservation->room && $reservation->room->user) {
+            $reservation->room->user->notify(new \App\Notifications\ReservationStatusNotification($reservation, 'cancelled'));
+        }
         return redirect()->route('rooms.show', $reservation->room_id)->with('error', 'You cancelled the payment.');
     }
     // ─────────────────────────────────────────────────────────────────
@@ -308,6 +315,10 @@ class PaymentController extends Controller
                     'transaction_id' => $session->payment_intent
                 ]);
 
+                if ($reservation->room && $reservation->room->user) {
+                    $reservation->room->user->notify(new \App\Notifications\ReservationStatusNotification($reservation, 'new'));
+                }
+
                 // Block the dates
                 $start = Carbon::parse($reservation->checkin);
                 $end = Carbon::parse($reservation->checkout);
@@ -334,6 +345,9 @@ class PaymentController extends Controller
     {
         $reservation = Reservation::findOrFail($request->reservation);
         $reservation->update(['status' => 'failed']);
+        if ($reservation->room && $reservation->room->user) {
+            $reservation->room->user->notify(new \App\Notifications\ReservationStatusNotification($reservation, 'cancelled'));
+        }
         return redirect()->route('rooms.show', $reservation->room_id)->with('error', 'You cancelled the Stripe payment.');
     }
 
@@ -480,6 +494,10 @@ class PaymentController extends Controller
                 'transaction_id' => $request->input('easepayid')
             ]);
 
+            if ($reservation->room && $reservation->room->user) {
+                $reservation->room->user->notify(new \App\Notifications\ReservationStatusNotification($reservation, 'new'));
+            }
+
             $start = Carbon::parse($reservation->checkin);
             $end = Carbon::parse($reservation->checkout);
             while ($start->lt($end)) {
@@ -504,6 +522,9 @@ class PaymentController extends Controller
             $reservation = Reservation::find($reservationId);
             if ($reservation) {
                 $reservation->update(['status' => 'failed']);
+                if ($reservation->room && $reservation->room->user) {
+                    $reservation->room->user->notify(new \App\Notifications\ReservationStatusNotification($reservation, 'cancelled'));
+                }
                 return redirect()->route('rooms.show', $reservation->room_id)->with('error', 'You cancelled the Easebuzz payment.');
             }
         }
@@ -613,6 +634,10 @@ class PaymentController extends Controller
                 'transaction_id' => $payment_id
             ]);
 
+            if ($reservation->room && $reservation->room->user) {
+                $reservation->room->user->notify(new \App\Notifications\ReservationStatusNotification($reservation, 'new'));
+            }
+
             // Block the dates
             $start = Carbon::parse($reservation->checkin);
             $end = Carbon::parse($reservation->checkout);
@@ -638,6 +663,9 @@ class PaymentController extends Controller
             $reservation = Reservation::find($reservationId);
             if ($reservation) {
                 $reservation->update(['status' => 'failed']);
+                if ($reservation->room && $reservation->room->user) {
+                    $reservation->room->user->notify(new \App\Notifications\ReservationStatusNotification($reservation, 'cancelled'));
+                }
                 return redirect()->route('rooms.show', $reservation->room_id)->with('error', 'You cancelled the Razorpay payment.');
             }
         }

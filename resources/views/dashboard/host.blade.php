@@ -201,6 +201,67 @@
         font-weight: 700;
     }
 
+    .custom-status-dropdown {
+        position: relative;
+        user-select: none;
+    }
+
+    .status-trigger {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: var(--card-bg);
+        color: var(--body-text);
+        transition: all 0.2s;
+        height: 44px;
+        box-sizing: border-box;
+    }
+
+    .status-trigger:hover {
+        border-color: var(--accent);
+    }
+
+    .status-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 8px;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow-lg);
+        width: 100%;
+        min-width: 150px;
+        padding: 8px;
+        z-index: 100;
+        display: none;
+    }
+
+    .status-options.active {
+        display: block;
+    }
+
+    .status-option {
+        padding: 10px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        color: var(--body-text);
+        font-weight: 500;
+        transition: background 0.2s;
+    }
+
+    .status-option:hover {
+        background: rgba(14, 165, 233, 0.05);
+        color: var(--accent);
+    }
+
     .trips-list {
         padding: 20px 24px;
         display: flex;
@@ -297,7 +358,7 @@
         margin-top: 4px;
     }
 
-    .status-success {
+    .status-success, .status-accepted, .status-confirmed {
         background: rgba(16, 185, 129, 0.1);
         color: #10b981;
     }
@@ -306,8 +367,13 @@
         background: rgba(245, 158, 11, 0.1);
         color: #f59e0b;
     }
+    
+    .status-requested {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
 
-    .status-failed {
+    .status-failed, .status-cancelled, .status-rejected {
         background: rgba(239, 68, 68, 0.1);
         color: #ef4444;
     }
@@ -387,17 +453,33 @@
 
     <form action="{{ route('dashboard') }}" method="GET" class="filter-form" id="dashboardFilterForm">
         <input type="hidden" name="filter_column" id="filterColumn" value="{{ $filterColumn }}">
+        <input type="hidden" name="filter" id="filterValue" value="{{ $filter }}">
 
-        <select name="filter" class="filter-select" onchange="updateDashboardAjax()">
-            <option value="today" {{ $filter === 'today' ? 'selected' : '' }}>Today</option>
-            <option value="yesterday" {{ $filter === 'yesterday' ? 'selected' : '' }}>Yesterday</option>
-            <option value="this_week" {{ $filter === 'this_week' ? 'selected' : '' }}>This Week</option>
-            <option value="next_week" {{ $filter === 'next_week' ? 'selected' : '' }}>Next Week</option>
-            <option value="this_month" {{ $filter === 'this_month' ? 'selected' : '' }}>This Month</option>
-            <option value="previous_month" {{ $filter === 'previous_month' ? 'selected' : '' }}>Previous Month</option>
-            <option value="this_year" {{ $filter === 'this_year' ? 'selected' : '' }}>This Year</option>
-            <option value="all" {{ $filter === 'all' ? 'selected' : '' }}>All Time</option>
-        </select>
+        <div class="custom-status-dropdown" style="margin: 0; min-width: 150px;">
+            <div class="status-trigger" onclick="document.getElementById('filterOptionsList').classList.toggle('active')">
+                <span class="status-text" id="selectedFilterText">{{ ucwords(str_replace('_', ' ', $filter)) }}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px; margin-left:auto;">
+                    <polyline points="6 9 12 15 18 9" />
+                </svg>
+            </div>
+            <div class="status-options" id="filterOptionsList">
+                @php
+                    $filterOpts = [
+                        'today' => 'Today',
+                        'yesterday' => 'Yesterday',
+                        'this_week' => 'This Week',
+                        'next_week' => 'Next Week',
+                        'this_month' => 'This Month',
+                        'previous_month' => 'Previous Month',
+                        'this_year' => 'This Year',
+                        'all' => 'All Time'
+                    ];
+                @endphp
+                @foreach($filterOpts as $key => $label)
+                    <div class="status-option" onclick="setFilter('{{ $key }}', '{{ $label }}')">{{ $label }}</div>
+                @endforeach
+            </div>
+        </div>
 
         <div class="filter-settings-btn" id="filterSettingsBtn" title="Filter Settings">
             <i class="fas fa-sliders-h"></i>
@@ -459,80 +541,161 @@
 </div>
 
 <div class="dashboard-split">
-    <!-- Left Side: User's Trips -->
+    <!-- Left Side: User's Trips & Reservations -->
     <div class="panel">
         <div class="panel-header">
-            <h2>My Trips</h2>
+            <div class="custom-status-dropdown" style="margin: 0; min-width: 180px;">
+                <div class="status-trigger" onclick="document.getElementById('panelOptions').classList.toggle('active')">
+                    <span class="status-text" id="leftPanelTitle" style="font-size: 16px;">My Trips</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px; margin-left: auto;">
+                        <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                </div>
+                <div class="status-options" id="panelOptions">
+                    <div class="status-option" onclick="switchLeftPanel('trips', 'My Trips')">My Trips</div>
+                    <div class="status-option" onclick="switchLeftPanel('reservations', 'My Reservations')">My Reservations</div>
+                </div>
+            </div>
             <div class="badge">Based on {{ str_replace('_', ' ', $filterColumn) }}</div>
         </div>
 
-        <div class="trips-list" id="tripsContainer">
-            @if($trips->count() > 0)
-                @include('dashboard.partials.trip_rows')
-            @else
-                <div class="empty-state" style="padding: 40px 20px;">
-                    <i class="fas fa-plane-slash"></i>
-                    <h3>No trips found</h3>
-                    <p style="color: var(--body-muted); font-size: 14px;">No trips match your filters.</p>
-                </div>
+        <div id="tripsWrapper">
+            <div class="trips-list" id="tripsContainer">
+                @if($trips->count() > 0)
+                    @include('dashboard.partials.trip_rows')
+                @else
+                    <div class="empty-state" style="padding: 40px 20px;">
+                        <i class="fas fa-plane-slash"></i>
+                        <h3>No trips found</h3>
+                        <p style="color: var(--body-muted); font-size: 14px;">No trips match your filters.</p>
+                    </div>
+                @endif
+            </div>
+            @if($trips->hasMorePages())
+                <button class="btn-show-more" id="loadMoreTrips" data-page="2">Show More</button>
             @endif
         </div>
-        @if($trips->hasMorePages())
-            <button class="btn-show-more" id="loadMoreTrips" data-page="2">Show More</button>
-        @endif
-    </div>
 
-    <!-- Right Side: Property Reservations -->
-    <div class="panel">
-        <div class="panel-header">
-            <h2>Hosting Transactions</h2>
-            <div class="badge">Based on {{ str_replace('_', ' ', $filterColumn) }}</div>
-        </div>
-
-        <table class="transaction-table">
-            <thead>
-                <tr>
-                    <th>Property & Guest</th>
-                    <th style="text-align: right;">Amount & Status</th>
-                </tr>
-            </thead>
-            <tbody id="reservationsContainer">
+        <div id="reservationsWrapper" style="display:none;">
+            <div class="trips-list" id="reservationsContainer">
                 @if($reservations->count() > 0)
                     @include('dashboard.partials.reservation_rows')
                 @else
-                    <tr>
-                        <td colspan="2">
-                            <div class="empty-state">
-                                <i class="fas fa-receipt"></i>
-                                <h3>No transactions found</h3>
-                                <p style="color: var(--body-muted);">No reservations match your filters.</p>
-                            </div>
-                        </td>
-                    </tr>
+                    <div class="empty-state" style="padding: 40px 20px;">
+                        <i class="fas fa-receipt"></i>
+                        <h3>No transactions found</h3>
+                        <p style="color: var(--body-muted);">No reservations match your filters.</p>
+                    </div>
                 @endif
-            </tbody>
-        </table>
-        @if($reservations->hasMorePages())
-            <button class="btn-show-more" id="loadMoreReservations" data-page="2">Show More</button>
-        @endif
+            </div>
+            @if($reservations->hasMorePages())
+                <button class="btn-show-more" id="loadMoreReservations" data-page="2">Show More</button>
+            @endif
+        </div>
+    </div>
+
+    <!-- Right Side: Inbox / Notifications -->
+    <div class="panel">
+        <div class="panel-header" style="padding-bottom: 0; border-bottom: none;">
+            <div style="display:flex; gap: 24px;">
+                <div class="tab-btn active" style="font-size: 16px; font-weight: 700; padding-bottom: 16px; border-bottom: 2px solid var(--accent); color: var(--body-text); cursor: pointer;" onclick="switchRightTab('inbox', this)">Inbox</div>
+                <div class="tab-btn" style="font-size: 16px; font-weight: 700; padding-bottom: 16px; color: var(--body-muted); cursor: pointer; border-bottom: 2px solid transparent;" onclick="switchRightTab('notifications', this)">Notifications</div>
+            </div>
+        </div>
+        <div style="border-top: 1px solid var(--border);">
+            <div id="inboxContent" class="empty-state" style="padding: 60px 20px;">
+                <i class="far fa-comments"></i>
+                <h3>No Messages</h3>
+                <p style="color: var(--body-muted);">You have no new messages in your inbox.</p>
+            </div>
+            <div id="notificationsContent" style="display:none; max-height: 600px; overflow-y: auto;">
+                @if(isset($notifications) && $notifications->count() > 0)
+                    <div class="notifications-list">
+                        @foreach($notifications as $notification)
+                            <a href="{{ $notification->data['url'] ?? '#' }}" class="notification-card" style="display:flex; gap: 16px; padding: 16px; border-bottom: 1px solid var(--border); text-decoration: none; align-items: flex-start; {{ is_null($notification->read_at) ? 'background-color: rgba(99, 102, 241, 0.05); border-left: 3px solid var(--accent);' : 'border-left: 3px solid transparent;' }} transition: all 0.2s ease;">
+                                <div class="notification-icon" style="width: 40px; height: 40px; border-radius: 50%; background-color: {{ $notification->data['color'] ?? 'var(--accent)' }}15; color: {{ $notification->data['color'] ?? 'var(--accent)' }}; display:flex; align-items:center; justify-content:center; flex-shrink: 0; font-size: 16px;">
+                                    <i class="{{ $notification->data['icon'] ?? 'fas fa-bell' }}"></i>
+                                </div>
+                                <div style="flex-grow: 1;">
+                                    <h4 style="margin: 0 0 4px 0; color: var(--body-text); font-size: 15px; font-weight: 600;">{{ $notification->data['title'] ?? 'Notification' }}</h4>
+                                    <p style="margin: 0 0 8px 0; color: var(--body-muted); font-size: 13px; line-height: 1.4;">{{ $notification->data['message'] ?? '' }}</p>
+                                    <span style="font-size: 11px; color: #94a3b8; font-weight: 500;">{{ $notification->created_at->diffForHumans() }}</span>
+                                </div>
+                                @if(is_null($notification->read_at))
+                                    <div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--accent); margin-top: 6px;"></div>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="empty-state" style="padding: 60px 20px;">
+                        <i class="far fa-bell"></i>
+                        <h3>No Notifications</h3>
+                        <p style="color: var(--body-muted);">You're all caught up!</p>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
     // Toggle Filter Settings Menu
     const filterSettingsBtn = document.getElementById('filterSettingsBtn');
-    const filterSettingsMenu = document.getElementById('filterSettingsMenu');
 
     filterSettingsBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        filterSettingsMenu.classList.toggle('active');
+        document.getElementById('filterSettingsMenu')?.classList.toggle('active');
+        document.getElementById('filterOptionsList')?.classList.remove('active');
+        document.getElementById('panelOptions')?.classList.remove('active');
     });
 
     document.addEventListener('click', (e) => {
-        if (!filterSettingsMenu.contains(e.target) && !filterSettingsBtn.contains(e.target)) {
-            filterSettingsMenu.classList.remove('active');
+        if (!document.getElementById('filterSettingsMenu')?.contains(e.target) && !filterSettingsBtn.contains(e.target)) {
+            document.getElementById('filterSettingsMenu')?.classList.remove('active');
+        }
+        if (!e.target.closest('.custom-status-dropdown')) {
+            document.getElementById('filterOptionsList')?.classList.remove('active');
+            document.getElementById('panelOptions')?.classList.remove('active');
         }
     });
+
+    function setFilter(value, label) {
+        document.getElementById('filterValue').value = value;
+        document.getElementById('selectedFilterText').innerText = label;
+        document.getElementById('filterOptionsList')?.classList.remove('active');
+        updateDashboardAjax();
+    }
+
+    function switchLeftPanel(type, title) {
+        document.getElementById('leftPanelTitle').innerText = title;
+        document.getElementById('panelOptions')?.classList.remove('active');
+
+        if(type === 'trips') {
+            document.getElementById('tripsWrapper').style.display = 'block';
+            document.getElementById('reservationsWrapper').style.display = 'none';
+        } else {
+            document.getElementById('tripsWrapper').style.display = 'none';
+            document.getElementById('reservationsWrapper').style.display = 'block';
+        }
+    }
+
+    function switchRightTab(tab, element) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.style.borderBottom = '2px solid transparent';
+            btn.style.color = 'var(--body-muted)';
+        });
+        element.style.borderBottom = '2px solid var(--accent)';
+        element.style.color = 'var(--body-text)';
+
+        if(tab === 'inbox') {
+            document.getElementById('inboxContent').style.display = 'block';
+            document.getElementById('notificationsContent').style.display = 'none';
+        } else {
+            document.getElementById('inboxContent').style.display = 'none';
+            document.getElementById('notificationsContent').style.display = 'block';
+        }
+    }
 
     function setFilterColumn(column) {
         document.getElementById('filterColumn').value = column;
@@ -547,8 +710,8 @@
     function updateDashboardAjax() {
         const form = document.getElementById('dashboardFilterForm');
         const url = new URL(form.action);
-        url.searchParams.set('filter', form.filter.value);
-        url.searchParams.set('filter_column', form.filter_column.value);
+        url.searchParams.set('filter', document.getElementById('filterValue').value);
+        url.searchParams.set('filter_column', document.getElementById('filterColumn').value);
         
         document.body.style.cursor = 'wait';
         document.querySelector('.stats-grid').style.opacity = '0.5';

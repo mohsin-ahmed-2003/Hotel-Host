@@ -83,6 +83,9 @@ class DashboardController extends Controller
         $tripsQuery = $this->applyDateFilter($tripsQuery, $filter, $filterColumn);
         $trips = $tripsQuery->paginate(5, ['*'], 'trips_page');
 
+        $user = Auth::user() ?? \App\Models\User::find($userId);
+        $notifications = $user ? $user->notifications()->take(20)->get() : collect();
+
         if ($request->ajax()) {
             if ($request->has('load_trips')) {
                 return view('dashboard.partials.trip_rows', compact('trips'))->render();
@@ -93,7 +96,7 @@ class DashboardController extends Controller
         }
 
         $isHost = true;
-        return view('dashboard.index', compact('isHost', 'reservations', 'totalEarnings', 'totalReservations', 'totalNights', 'bookedRooms', 'totalHostRooms', 'filter', 'filterColumn', 'trips'));
+        return view('dashboard.index', compact('isHost', 'reservations', 'totalEarnings', 'totalReservations', 'totalNights', 'bookedRooms', 'totalHostRooms', 'filter', 'filterColumn', 'trips', 'notifications'));
     }
 
     private function guestDashboard($userId)

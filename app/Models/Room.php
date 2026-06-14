@@ -140,4 +140,22 @@ class Room extends Model
         }
         return $missing;
     }
+
+    public function getAverageRatingAttribute()
+    {
+        $approvedReviews = $this->reviews()->where('host_approved', true)->get();
+        if ($approvedReviews->count() === 0) return 0;
+        
+        $totalRating = 0;
+        foreach ($approvedReviews as $review) {
+            $totalRating += $review->rating;
+        }
+        
+        return round($totalRating / $approvedReviews->count(), 1);
+    }
+
+    public function getReviewCountAttribute()
+    {
+        return $this->reviews()->where('host_approved', true)->count();
+    }
 }

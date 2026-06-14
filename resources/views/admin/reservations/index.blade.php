@@ -183,12 +183,12 @@
                     </tbody>
                 </table>
             </div>
-
-            @if($reservations->hasPages())
-                <div style="padding: 20px; border-top: 1px solid var(--border);">
-                    {{ $reservations->links('pagination::bootstrap-4') }}
-                </div>
-            @endif
         </div>
     </div>
+
+    @if($reservations->hasPages())
+        <div style="margin-top: 20px;">
+            {{ $reservations->links() }}
+        </div>
+    @endif
 @endsection

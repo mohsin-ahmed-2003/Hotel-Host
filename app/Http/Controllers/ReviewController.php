@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Reservation;
 use App\Models\Review;
 use App\Mail\HostReviewNotificationMail;
+use App\Notifications\ReviewReceivedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -53,6 +54,11 @@ class ReviewController extends Controller
         // Send email to host
         if ($reservation->room->user->email) {
             \App\Http\Controllers\EmailController::sendHostReviewNotification($reservation, $review);
+        }
+
+        // Notify Room Owner via Database
+        if ($reservation->room && $reservation->room->user) {
+            $reservation->room->user->notify(new ReviewReceivedNotification($review));
         }
 
         return redirect()->route('user.reservations')->with('success', 'Your review has been successfully submitted! Thank you.');

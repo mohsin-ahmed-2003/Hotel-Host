@@ -54,6 +54,12 @@ class RoomController extends Controller
             }
         }
 
+        // Notify Room Owner
+        if ($room->user) {
+            $reasonText = $request->status === 'resubmit' ? $request->resubmit_reason : null;
+            $room->user->notify(new \App\Notifications\RoomStatusUpdatedNotification($room, $request->status, $reasonText));
+        }
+
         return response()->json(['success' => true, 'message' => 'Status updated successfully!']);
     }
 
@@ -261,6 +267,12 @@ class RoomController extends Controller
             } catch (\Exception $e) {
                 \Log::error('Room approved email failed: ' . $e->getMessage());
             }
+        }
+
+        // Notify Room Owner on status change
+        if ($oldStatus !== $request->status && $room->user) {
+            $reasonText = $request->status === 'resubmit' ? $request->resubmit_reason : null;
+            $room->user->notify(new \App\Notifications\RoomStatusUpdatedNotification($room, $request->status, $reasonText));
         }
 
         // Location details
