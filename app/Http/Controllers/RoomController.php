@@ -72,7 +72,28 @@ class RoomController extends Controller
         // Increment the view count
         $room->increment('view_count');
 
-        return view('rooms.show', compact('room'));
+        // Fetch similar properties
+        $similarRooms = Room::where('status', 'approved')
+            ->where('rooms.id', '!=', $room->id)
+            ->select('rooms.*')
+            ->leftJoin('room_locations', 'rooms.id', '=', 'room_locations.room_id')
+            ->orderByRaw("
+                CASE 
+                    WHEN rooms.user_id = ? THEN 1
+                    WHEN room_locations.city = ? THEN 2
+                    WHEN room_locations.state = ? THEN 3
+                    ELSE 4
+                END
+            ", [
+                $room->user_id, 
+                $room->roomLocation->city ?? '', 
+                $room->roomLocation->state ?? ''
+            ])
+            ->with(['roomLocation', 'photos', 'roomPrice'])
+            ->take(4)
+            ->get();
+
+        return view('rooms.show', compact('room', 'similarRooms'));
     }
 
     /**

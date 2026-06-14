@@ -2130,6 +2130,296 @@
 
         </div>
 
+        <!-- Similar Properties Section -->
+        @if(isset($similarRooms) && $similarRooms->count() > 0)
+            <div class="room-section" style="margin-top: 60px;">
+                <h2 class="section-title"><i class="fas fa-home"></i> Similar Properties</h2>
+                @include('home.partials.rooms_grid', ['rooms' => $similarRooms])
+            </div>
+            
+            <style>
+                .rooms-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+                    gap: 28px;
+                    margin-top: 24px;
+                }
+                .room-card {
+                    background: var(--card-bg, #fff);
+                    border: 1.5px solid var(--border, #e2e8f0);
+                    border-radius: 20px;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    height: auto;
+                    max-width: 275px;
+                    width: 100%;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
+                    cursor: pointer;
+                }
+                .room-card:hover {
+                    transform: translateY(-8px);
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+                    border-color: rgba(99, 102, 241, 0.3);
+                }
+                .room-image-slider {
+                    position: relative;
+                    height: 165px;
+                    overflow: hidden;
+                    background: #f1f5f9;
+                    flex-shrink: 0;
+                    border-radius: 18px 18px 0 0;
+                }
+                .slides-container {
+                    width: 100%;
+                    height: 100%;
+                    position: relative;
+                }
+                .slide-img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    opacity: 0;
+                    transition: opacity 0.4s ease;
+                    display: none;
+                }
+                .slide-img.active {
+                    opacity: 1;
+                    z-index: 1;
+                    display: block;
+                }
+                .slider-btn {
+                    position: absolute !important;
+                    top: 50% !important;
+                    transform: translateY(-50%) scale(0.85) !important;
+                    z-index: 10 !important;
+                    background: rgba(255, 255, 255, 0.85) !important;
+                    backdrop-filter: blur(4px) !important;
+                    -webkit-backdrop-filter: blur(4px) !important;
+                    border: none !important;
+                    width: 28px !important;
+                    height: 28px !important;
+                    border-radius: 50% !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    color: #1e293b !important;
+                    cursor: pointer !important;
+                    opacity: 0 !important;
+                    transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1) !important;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+                    outline: none !important;
+                }
+                .slider-btn i {
+                    font-size: 12px;
+                    color: inherit;
+                }
+                .slider-btn:hover {
+                    background: #ffffff !important;
+                    color: #6366f1 !important;
+                    transform: translateY(-50%) scale(1.05) !important;
+                }
+                .room-card:hover .slider-btn {
+                    opacity: 1 !important;
+                    transform: translateY(-50%) scale(1) !important;
+                }
+                .prev-btn {
+                    left: 12px !important;
+                }
+                .next-btn {
+                    right: 12px !important;
+                }
+                .wishlist-btn {
+                    position: absolute;
+                    top: 12px;
+                    right: 12px;
+                    z-index: 15;
+                    background: rgba(255, 255, 255, 0.85);
+                    backdrop-filter: blur(4px);
+                    -webkit-backdrop-filter: blur(4px);
+                    border: none;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #64748b;
+                    cursor: pointer;
+                    transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                    outline: none;
+                }
+                .wishlist-btn:hover {
+                    transform: scale(1.1);
+                    background: #ffffff;
+                    color: #ef4444;
+                }
+                .wishlist-btn.active {
+                    color: #ef4444;
+                    background: #ffffff;
+                }
+                .room-card-content {
+                    padding: 14px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+                .room-title-review-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .room-card-title {
+                    font-size: 14px;
+                    font-weight: 800;
+                    margin: 0;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    color: var(--body-text, #1e293b);
+                }
+                .room-card:hover .room-card-title {
+                    color: #6366f1;
+                }
+                .room-card-review {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    font-size: 12px;
+                    font-weight: 800;
+                    color: var(--body-text, #1e293b);
+                }
+                .room-card-review .star-icon {
+                    color: #f59e0b;
+                    font-size: 11px;
+                }
+                .room-type-space-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 11px;
+                    color: var(--body-muted, #64748b);
+                    font-weight: 600;
+                    margin: 0;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .room-card-price-row {
+                    display: flex;
+                    align-items: center;
+                    font-size: 11px;
+                    color: var(--body-muted, #64748b);
+                    font-weight: 600;
+                    margin-top: 2px;
+                }
+                .room-card-price-row .price-val {
+                    font-size: 15px;
+                    font-weight: 850;
+                    color: var(--body-text, #1e293b);
+                    margin-right: 2px;
+                }
+                .room-card-footer {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-top: 1px solid var(--border, #e2e8f0);
+                    padding-top: 10px;
+                    margin-top: 6px;
+                    font-size: 11px;
+                    color: var(--body-muted, #64748b);
+                    font-weight: 600;
+                }
+                body.dark-mode .room-card {
+                    background: #1e1e30;
+                    border-color: rgba(255,255,255,0.08);
+                }
+                body.dark-mode .room-card-title,
+                body.dark-mode .room-card-review,
+                body.dark-mode .price-val {
+                    color: #f1f5f9;
+                }
+                body.dark-mode .room-card-footer,
+                body.dark-mode .room-type-space-row,
+                body.dark-mode .room-card-price-row {
+                    color: #94a3b8;
+                    border-color: rgba(255,255,255,0.08);
+                }
+            </style>
+
+            <script>
+                function toggleWishlist(event, roomId) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    const btn = event.currentTarget;
+                    if (!btn) return;
+                    
+                    fetch('/wishlist/toggle', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ room_id: roomId })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (data.status === 'added') {
+                                btn.classList.add('active');
+                            } else {
+                                btn.classList.remove('active');
+                            }
+                        } else {
+                            if (data.redirect) {
+                                window.location.href = data.redirect;
+                            }
+                        }
+                    })
+                    .catch(err => console.error(err));
+                }
+                
+                function changeImage(event, dir) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    const btn = event.currentTarget;
+                    const slider = btn.closest('.room-image-slider');
+                    const slides = slider.querySelectorAll('.slide-img');
+                    if(slides.length <= 1) return;
+                    
+                    let activeIndex = 0;
+                    slides.forEach((slide, idx) => {
+                        if (slide.classList.contains('active')) {
+                            activeIndex = idx;
+                            slide.classList.remove('active');
+                        }
+                    });
+                    
+                    if (dir === 'next') {
+                        activeIndex = (activeIndex + 1) % slides.length;
+                    } else {
+                        activeIndex = (activeIndex - 1 + slides.length) % slides.length;
+                    }
+                    slides[activeIndex].classList.add('active');
+                }
+
+                function prevSlide(event) {
+                    changeImage(event, 'prev');
+                }
+
+                function nextSlide(event) {
+                    changeImage(event, 'next');
+                }
+            </script>
+        @endif
+
         <!-- Bottom: Cinematic Video Section -->
         @if($room->video_path || $room->video_link)
             <div class="room-section" style="margin-top: 60px;">
