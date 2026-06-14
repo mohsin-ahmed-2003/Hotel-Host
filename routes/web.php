@@ -88,6 +88,16 @@ Route::middleware('web')->group(function () {
     Route::post('/host/enhancement/{enhancement}/toggle', [HostPropertyController::class, 'toggleEnhancement'])->name('host.toggle-enhancement');
     Route::post('/host/{room}/calendar/toggle', [HostPropertyController::class, 'toggleCalendarDate'])->name('host.calendar.toggle');
     Route::post('/host/{room}/finish', [HostPropertyController::class, 'finish'])->name('host.finish');
+
+    // Host Reviews
+    Route::get('/host/reservations/{reservation}/review', [\App\Http\Controllers\HostReviewController::class, 'show'])->name('host.reviews.show');
+    Route::post('/host/reservations/{reservation}/review/action', [\App\Http\Controllers\HostReviewController::class, 'updateStatus'])->name('host.reviews.action');
+});
+
+// User Review Routes
+Route::middleware('web')->group(function () {
+    Route::get('/reservations/{reservation}/review', [\App\Http\Controllers\ReviewController::class, 'create'])->name('user.reservations.review');
+    Route::post('/reservations/{reservation}/review', [\App\Http\Controllers\ReviewController::class, 'store'])->name('user.reservations.review.store');
 });
 
 // Forgot password
@@ -180,6 +190,11 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     
     // User Subscriptions
     Route::get('/user-subscriptions', [\App\Http\Controllers\Admin\UserSubscriptionController::class, 'index'])->name('user-subscriptions.index');
+
+    // Reviews
+    Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews.index');
+    Route::post('/reviews/{reservation}/send-email', [\App\Http\Controllers\Admin\ReviewController::class, 'sendEmail'])->name('reviews.send-email');
+    Route::get('/reviews/{reservation}/view', [\App\Http\Controllers\Admin\ReviewController::class, 'view'])->name('reviews.view');
 });
 
 // User Subscription Routes

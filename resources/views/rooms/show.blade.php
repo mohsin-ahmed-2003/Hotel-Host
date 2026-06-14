@@ -2047,6 +2047,147 @@
                     </div>
                 </div>
 
+                <!-- 7. Guest Reviews -->
+                <div class="room-section room-reviews-section" style="margin-top: 40px;">
+                    <h2 class="section-title" style="display: flex; align-items: center;">
+                        <span><i class="fas fa-star" style="color: #fbbf24;"></i> Guest Reviews</span>
+                        @if($room->average_rating > 0)
+                            <span style="font-size: 18px; color: var(--room-text); margin-left: auto; font-weight: 800;">
+                                <i class="fas fa-star" style="color: #fbbf24; font-size: 16px;"></i>
+                                {{ number_format($room->average_rating, 1) }}
+                                <span
+                                    style="font-size: 14px; color: var(--room-muted); font-weight: 600;">({{ $room->review_count }}
+                                    review{{ $room->review_count !== 1 ? 's' : '' }})</span>
+                            </span>
+                        @endif
+                    </h2>
+
+                    @if($room->review_count > 0)
+                        <div class="reviews-list" style="display: flex; flex-direction: column; gap: 24px; margin-top: 20px;">
+                            @foreach($room->reviews()->where('host_approved', true)->latest()->get() as $review)
+                                <div class="review-card"
+                                    style="background: var(--room-surface); border: 1px solid var(--room-border); border-radius: 16px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+                                    <div class="reviewer-header"
+                                        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            @if($review->user->profile_image)
+                                                @php
+                                                    $profilePath = file_exists(public_path($review->user->profile_image))
+                                                        ? asset($review->user->profile_image)
+                                                        : asset('storage/' . $review->user->profile_image);
+                                                @endphp
+                                                <img src="{{ $profilePath }}" alt="{{ $review->user->name }}"
+                                                    style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                                            @else
+                                                <div
+                                                    style="width: 48px; height: 48px; border-radius: 50%; background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #3b82f6; font-size: 18px;">
+                                                    {{ strtoupper(substr($review->user->name ?? 'G', 0, 1)) }}
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--room-text);">
+                                                    {{ $review->user->name ?? 'Guest' }}</h4>
+                                                <div style="font-size: 12px; color: var(--room-muted); font-weight: 600;">
+                                                    {{ $review->created_at->format('F Y') }}</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="review-rating" style="display: flex; gap: 2px;">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                @if($review->rating >= $i - 0.25)
+                                                    <i class="fas fa-star" style="color: #fbbf24; font-size: 14px;"></i>
+                                                @elseif($review->rating >= $i - 0.75)
+                                                    <i class="fas fa-star-half-alt" style="color: #fbbf24; font-size: 14px;"></i>
+                                                @else
+                                                    <i class="far fa-star" style="color: #fbbf24; font-size: 14px;"></i>
+                                                @endif
+                                            @endfor
+                                        </div>
+                                    </div>
+
+                                    <div class="review-desc-container" style="margin-bottom: 5px; width: 100%; overflow: hidden;">
+                                        <div class="review-text short-desc"
+                                            style="font-size: 15px; line-height: 1.6; color: var(--room-text); margin: 0; opacity: 0.9; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">
+                                            {{ $review->description ?? 'No detailed description provided.' }}
+                                        </div>
+                                        <div class="review-text full-desc"
+                                            style="display: none; font-size: 15px; line-height: 1.6; color: var(--room-text); margin: 0; opacity: 0.9;">
+                                            {{ $review->description ?? 'No detailed description provided.' }}
+                                        </div>
+                                        <a href="javascript:void(0)" class="show-more-btn" onclick="toggleReviewDesc(this)"
+                                            style="font-size: 13px; font-weight: 700; color: var(--room-accent); margin-top: 6px; display: inline-block; text-decoration: none;">Show
+                                            more</a>
+                                    </div>
+
+                                    <div class="ratings-breakdown"
+                                        style="display: none; padding-top: 16px; border-top: 1px solid var(--room-border);">
+                                        <h5 style="font-size: 14px; font-weight: 700; color: var(--room-text); margin: 0 0 16px 0;">
+                                            Ratings Breakdown</h5>
+                                        <div
+                                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">
+                                            @php
+                                                $breakdown = [
+                                                    'Room Space' => $review->room_space,
+                                                    'Room Amenities' => $review->room_amenities,
+                                                    'Room Arrangement' => $review->room_arrangement,
+                                                    'Room Cleanness' => $review->room_cleanness,
+                                                    'Stay Location' => $review->stay_location,
+                                                ];
+                                                if ($review->dining_services) {
+                                                    $breakdown['Dining Services'] = $review->dining_services;
+                                                }
+                                            @endphp
+                                            @foreach($breakdown as $label => $val)
+                                                <div
+                                                    style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.01); padding: 8px 12px; border-radius: 8px;">
+                                                    <span
+                                                        style="font-size: 13px; font-weight: 600; color: var(--room-text);">{{ $label }}</span>
+                                                    <div style="display: flex; gap: 4px;">
+                                                        @for($j = 1; $j <= 5; $j++)
+                                                            <i class="fa{{ $j <= $val ? 's' : 'r' }} fa-star"
+                                                                style="color: #fbbf24; font-size: 12px;"></i>
+                                                        @endfor
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <script>
+                            function toggleReviewDesc(btn) {
+                                const card = btn.closest('.review-card');
+                                const shortDesc = card.querySelector('.short-desc');
+                                const fullDesc = card.querySelector('.full-desc');
+                                const breakdown = card.querySelector('.ratings-breakdown');
+
+                                if (shortDesc.style.display === 'none') {
+                                    shortDesc.style.display = '-webkit-box';
+                                    fullDesc.style.display = 'none';
+                                    if (breakdown) breakdown.style.display = 'none';
+                                    btn.textContent = 'Show more';
+                                } else {
+                                    shortDesc.style.display = 'none';
+                                    fullDesc.style.display = 'block';
+                                    if (breakdown) breakdown.style.display = 'block';
+                                    btn.textContent = 'Show less';
+                                }
+                            }
+                        </script>
+                    @else
+                        <div
+                            style="text-align: center; padding: 40px 20px; background: var(--room-surface); border: 1px dashed var(--room-border); border-radius: 16px; margin-top: 20px;">
+                            <i class="fas fa-comment-slash"
+                                style="font-size: 32px; color: var(--room-muted); margin-bottom: 12px; opacity: 0.5;"></i>
+                            <h4 style="margin: 0 0 8px 0; color: var(--room-text);">No reviews yet</h4>
+                            <p style="margin: 0; font-size: 14px; color: var(--room-muted);">This property doesn't have any
+                                reviews yet.</p>
+                        </div>
+                    @endif
+                </div>
+
             </div>
 
             <!-- Right: Glass Booking Form -->
@@ -2111,7 +2252,8 @@
                         </div>
 
                         @if(Auth::check() && Auth::id() == $room->user_id)
-                            <div style="margin-top: 16px; padding: 14px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); text-align: center; border-radius: 12px; color: #4f46e5; font-weight: 700; font-family: 'Outfit', sans-serif;">
+                            <div
+                                style="margin-top: 16px; padding: 14px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); text-align: center; border-radius: 12px; color: #4f46e5; font-weight: 700; font-family: 'Outfit', sans-serif;">
                                 <i class="fas fa-home me-2"></i> You are the host of this property
                             </div>
                         @else
@@ -2136,7 +2278,7 @@
                 <h2 class="section-title"><i class="fas fa-home"></i> Similar Properties</h2>
                 @include('home.partials.rooms_grid', ['rooms' => $similarRooms])
             </div>
-            
+
             <style>
                 .rooms-grid {
                     display: grid;
@@ -2144,6 +2286,7 @@
                     gap: 28px;
                     margin-top: 24px;
                 }
+
                 .room-card {
                     background: var(--card-bg, #fff);
                     border: 1.5px solid var(--border, #e2e8f0);
@@ -2159,11 +2302,13 @@
                     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
                     cursor: pointer;
                 }
+
                 .room-card:hover {
                     transform: translateY(-8px);
                     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
                     border-color: rgba(99, 102, 241, 0.3);
                 }
+
                 .room-image-slider {
                     position: relative;
                     height: 165px;
@@ -2172,11 +2317,13 @@
                     flex-shrink: 0;
                     border-radius: 18px 18px 0 0;
                 }
+
                 .slides-container {
                     width: 100%;
                     height: 100%;
                     position: relative;
                 }
+
                 .slide-img {
                     width: 100%;
                     height: 100%;
@@ -2188,11 +2335,13 @@
                     transition: opacity 0.4s ease;
                     display: none;
                 }
+
                 .slide-img.active {
                     opacity: 1;
                     z-index: 1;
                     display: block;
                 }
+
                 .slider-btn {
                     position: absolute !important;
                     top: 50% !important;
@@ -2215,25 +2364,31 @@
                     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
                     outline: none !important;
                 }
+
                 .slider-btn i {
                     font-size: 12px;
                     color: inherit;
                 }
+
                 .slider-btn:hover {
                     background: #ffffff !important;
                     color: #6366f1 !important;
                     transform: translateY(-50%) scale(1.05) !important;
                 }
+
                 .room-card:hover .slider-btn {
                     opacity: 1 !important;
                     transform: translateY(-50%) scale(1) !important;
                 }
+
                 .prev-btn {
                     left: 12px !important;
                 }
+
                 .next-btn {
                     right: 12px !important;
                 }
+
                 .wishlist-btn {
                     position: absolute;
                     top: 12px;
@@ -2255,27 +2410,32 @@
                     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
                     outline: none;
                 }
+
                 .wishlist-btn:hover {
                     transform: scale(1.1);
                     background: #ffffff;
                     color: #ef4444;
                 }
+
                 .wishlist-btn.active {
                     color: #ef4444;
                     background: #ffffff;
                 }
+
                 .room-card-content {
                     padding: 14px;
                     display: flex;
                     flex-direction: column;
                     gap: 6px;
                 }
+
                 .room-title-review-row {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                     gap: 12px;
                 }
+
                 .room-card-title {
                     font-size: 14px;
                     font-weight: 800;
@@ -2285,9 +2445,11 @@
                     overflow: hidden;
                     color: var(--body-text, #1e293b);
                 }
+
                 .room-card:hover .room-card-title {
                     color: #6366f1;
                 }
+
                 .room-card-review {
                     display: flex;
                     align-items: center;
@@ -2296,10 +2458,12 @@
                     font-weight: 800;
                     color: var(--body-text, #1e293b);
                 }
+
                 .room-card-review .star-icon {
                     color: #f59e0b;
                     font-size: 11px;
                 }
+
                 .room-type-space-row {
                     display: flex;
                     align-items: center;
@@ -2312,6 +2476,7 @@
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
+
                 .room-card-price-row {
                     display: flex;
                     align-items: center;
@@ -2320,12 +2485,14 @@
                     font-weight: 600;
                     margin-top: 2px;
                 }
+
                 .room-card-price-row .price-val {
                     font-size: 15px;
                     font-weight: 850;
                     color: var(--body-text, #1e293b);
                     margin-right: 2px;
                 }
+
                 .room-card-footer {
                     display: flex;
                     justify-content: space-between;
@@ -2337,20 +2504,23 @@
                     color: var(--body-muted, #64748b);
                     font-weight: 600;
                 }
+
                 body.dark-mode .room-card {
                     background: #1e1e30;
-                    border-color: rgba(255,255,255,0.08);
+                    border-color: rgba(255, 255, 255, 0.08);
                 }
+
                 body.dark-mode .room-card-title,
                 body.dark-mode .room-card-review,
                 body.dark-mode .price-val {
                     color: #f1f5f9;
                 }
+
                 body.dark-mode .room-card-footer,
                 body.dark-mode .room-type-space-row,
                 body.dark-mode .room-card-price-row {
                     color: #94a3b8;
-                    border-color: rgba(255,255,255,0.08);
+                    border-color: rgba(255, 255, 255, 0.08);
                 }
             </style>
 
@@ -2360,7 +2530,7 @@
                     event.preventDefault();
                     const btn = event.currentTarget;
                     if (!btn) return;
-                    
+
                     fetch('/wishlist/toggle', {
                         method: 'POST',
                         headers: {
@@ -2369,31 +2539,31 @@
                         },
                         body: JSON.stringify({ room_id: roomId })
                     })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            if (data.status === 'added') {
-                                btn.classList.add('active');
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                if (data.status === 'added') {
+                                    btn.classList.add('active');
+                                } else {
+                                    btn.classList.remove('active');
+                                }
                             } else {
-                                btn.classList.remove('active');
+                                if (data.redirect) {
+                                    window.location.href = data.redirect;
+                                }
                             }
-                        } else {
-                            if (data.redirect) {
-                                window.location.href = data.redirect;
-                            }
-                        }
-                    })
-                    .catch(err => console.error(err));
+                        })
+                        .catch(err => console.error(err));
                 }
-                
+
                 function changeImage(event, dir) {
                     event.stopPropagation();
                     event.preventDefault();
                     const btn = event.currentTarget;
                     const slider = btn.closest('.room-image-slider');
                     const slides = slider.querySelectorAll('.slide-img');
-                    if(slides.length <= 1) return;
-                    
+                    if (slides.length <= 1) return;
+
                     let activeIndex = 0;
                     slides.forEach((slide, idx) => {
                         if (slide.classList.contains('active')) {
@@ -2401,7 +2571,7 @@
                             slide.classList.remove('active');
                         }
                     });
-                    
+
                     if (dir === 'next') {
                         activeIndex = (activeIndex + 1) % slides.length;
                     } else {
@@ -2615,9 +2785,9 @@
                                 datesContainer.setAttribute('data-range', currentRange);
 
                                 let datesHtml = `
-                                                                                                    <div style="font-size: 10px; font-weight: 700; color: var(--room-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">Select Days:</div>
-                                                                                                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 6px;">
-                                                                                                `;
+                                                                                                            <div style="font-size: 10px; font-weight: 700; color: var(--room-muted); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">Select Days:</div>
+                                                                                                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 6px;">
+                                                                                                        `;
 
                                 dates.forEach(date => {
                                     const dateVal = formatDateValue(date);
@@ -2632,11 +2802,11 @@
                                     }
 
                                     datesHtml += `
-                                                                                                        <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--room-text); cursor: pointer; user-select: none; padding: 4px 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--room-border); border-radius: 6px;">
-                                                                                                            <input type="checkbox" class="enhancement-date-chk-${id}" value="${dateVal}" checked onchange="handleDateSelection(${id})" style="accent-color: #10b981; width: 12px; height: 12px; cursor: pointer;">
-                                                                                                            <span>${dateText}</span>
-                                                                                                        </label>
-                                                                                                    `;
+                                                                                                                <label style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--room-text); cursor: pointer; user-select: none; padding: 4px 6px; background: rgba(255,255,255,0.02); border: 1px solid var(--room-border); border-radius: 6px;">
+                                                                                                                    <input type="checkbox" class="enhancement-date-chk-${id}" value="${dateVal}" checked onchange="handleDateSelection(${id})" style="accent-color: #10b981; width: 12px; height: 12px; cursor: pointer;">
+                                                                                                                    <span>${dateText}</span>
+                                                                                                                </label>
+                                                                                                            `;
                                 });
 
                                 datesHtml += `</div>`;
@@ -2882,7 +3052,7 @@
                     fillOpacity: 0.15,
                     weight: 2,
                     radius: {{ \App\Models\SiteSetting::get('map_radius', 400) }}
-                                                }).addTo(map);
+                                                    }).addTo(map);
 
                 // Add a beautiful custom center marker
                 const centerMarker = L.divIcon({
@@ -3267,151 +3437,151 @@
                         const weekendSurcharge = data.totalRawBasePrice - standardTotal;
 
                         let html = `
-                                                                                <div class="pricing-breakdown-card" style="display:flex; flex-direction:column; gap:12px; background:rgba(0,0,0,0.02); border:1px solid var(--room-border); border-radius:14px; padding:16px; font-family:'Outfit',sans-serif; backdrop-filter:blur(10px);">
+                                                                                    <div class="pricing-breakdown-card" style="display:flex; flex-direction:column; gap:12px; background:rgba(0,0,0,0.02); border:1px solid var(--room-border); border-radius:14px; padding:16px; font-family:'Outfit',sans-serif; backdrop-filter:blur(10px);">
 
-                                                                                    <!-- Standard Nightly Rate Row -->
-                                                                                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                                                                                        <div style="display:flex; flex-direction:column;">
-                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Nightly Rate</span>
-                                                                                            <span style="font-size:11px; color:var(--room-muted);">${symbol}${data.standardBasePrice.toFixed(2)} × ${data.totalNights} night${data.totalNights > 1 ? 's' : ''}</span>
+                                                                                        <!-- Standard Nightly Rate Row -->
+                                                                                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                                                                                            <div style="display:flex; flex-direction:column;">
+                                                                                                <span style="font-size:13px; font-weight:600; color:var(--room-text);">Nightly Rate</span>
+                                                                                                <span style="font-size:11px; color:var(--room-muted);">${symbol}${data.standardBasePrice.toFixed(2)} × ${data.totalNights} night${data.totalNights > 1 ? 's' : ''}</span>
+                                                                                            </div>
+                                                                                            <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${standardTotal.toFixed(2)}</span>
                                                                                         </div>
-                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${standardTotal.toFixed(2)}</span>
-                                                                                    </div>
-                                                                            `;
+                                                                                `;
 
                         if (weekendSurcharge > 0) {
                             html += `
-                                                                                    <!-- Weekend Surcharge Row -->
-                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                        <div style="display:flex; flex-direction:column;">
-                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Weekend Surcharge</span>
-                                                                                            <span style="font-size:11px; color:var(--room-muted);">Additional rate for Fri/Sat nights</span>
+                                                                                        <!-- Weekend Surcharge Row -->
+                                                                                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                            <div style="display:flex; flex-direction:column;">
+                                                                                                <span style="font-size:13px; font-weight:600; color:var(--room-text);">Weekend Surcharge</span>
+                                                                                                <span style="font-size:11px; color:var(--room-muted);">Additional rate for Fri/Sat nights</span>
+                                                                                            </div>
+                                                                                            <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${weekendSurcharge.toFixed(2)}</span>
                                                                                         </div>
-                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${weekendSurcharge.toFixed(2)}</span>
-                                                                                    </div>
-                                                                                `;
+                                                                                    `;
                         } else if (weekendSurcharge < 0) {
                             html += `
-                                                                                    <!-- Weekend Discount Row -->
-                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                        <div style="display:flex; flex-direction:column;">
-                                                                                            <span style="font-size:13px; font-weight:600; color:#10b981;">Weekend Deal</span>
-                                                                                            <span style="font-size:11px; color:#10b981; opacity:0.85;">Lower rate for Fri/Sat nights</span>
+                                                                                        <!-- Weekend Discount Row -->
+                                                                                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                            <div style="display:flex; flex-direction:column;">
+                                                                                                <span style="font-size:13px; font-weight:600; color:#10b981;">Weekend Deal</span>
+                                                                                                <span style="font-size:11px; color:#10b981; opacity:0.85;">Lower rate for Fri/Sat nights</span>
+                                                                                            </div>
+                                                                                            <span style="font-size:14px; font-weight:700; color:#10b981;">-${symbol}${Math.abs(weekendSurcharge).toFixed(2)}</span>
                                                                                         </div>
-                                                                                        <span style="font-size:14px; font-weight:700; color:#10b981;">-${symbol}${Math.abs(weekendSurcharge).toFixed(2)}</span>
-                                                                                    </div>
-                                                                                `;
+                                                                                    `;
                         }
 
                         if (data.discountPct > 0) {
                             html += `
-                                                                                    <!-- Applied Discount Row -->
-                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                        <div style="display:flex; flex-direction:column;">
-                                                                                            <span style="font-size:13px; font-weight:600; color:#10b981;">Discount Applied</span>
-                                                                                            <span style="font-size:11px; color:#10b981; opacity:0.85;">${data.discountAppliedName} (-${data.discountPct}%)</span>
+                                                                                        <!-- Applied Discount Row -->
+                                                                                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                            <div style="display:flex; flex-direction:column;">
+                                                                                                <span style="font-size:13px; font-weight:600; color:#10b981;">Discount Applied</span>
+                                                                                                <span style="font-size:11px; color:#10b981; opacity:0.85;">${data.discountAppliedName} (-${data.discountPct}%)</span>
+                                                                                            </div>
+                                                                                            <span style="font-size:14px; font-weight:700; color:#10b981;">-${symbol}${data.discountSavings.toFixed(2)}</span>
                                                                                         </div>
-                                                                                        <span style="font-size:14px; font-weight:700; color:#10b981;">-${symbol}${data.discountSavings.toFixed(2)}</span>
-                                                                                    </div>
-                                                                                `;
+                                                                                    `;
                         }
 
                         if (data.cleaningFee > 0) {
                             html += `
-                                                                                    <!-- Cleaning Fee Row -->
-                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                        <div style="display:flex; flex-direction:column;">
-                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Cleaning Fee</span>
-                                                                                            <span style="font-size:11px; color:var(--room-muted);">Flat rate sanitization</span>
+                                                                                        <!-- Cleaning Fee Row -->
+                                                                                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                            <div style="display:flex; flex-direction:column;">
+                                                                                                <span style="font-size:13px; font-weight:600; color:var(--room-text);">Cleaning Fee</span>
+                                                                                                <span style="font-size:11px; color:var(--room-muted);">Flat rate sanitization</span>
+                                                                                            </div>
+                                                                                            <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.cleaningFee.toFixed(2)}</span>
                                                                                         </div>
-                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.cleaningFee.toFixed(2)}</span>
-                                                                                    </div>
-                                                                                `;
+                                                                                    `;
                         }
 
                         if (data.extraGuestsFee > 0) {
                             const threshold = {{ $room->roomPrice->additional_pricing['additional_guests']['after_guests'] ?? 2 }};
                             html += `
-                                                                                    <!-- Extra Guests Row -->
-                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                        <div style="display:flex; flex-direction:column;">
-                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Extra Guests</span>
-                                                                                            <span style="font-size:11px; color:var(--room-muted);">Surcharge (after ${threshold} guests)</span>
+                                                                                        <!-- Extra Guests Row -->
+                                                                                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                            <div style="display:flex; flex-direction:column;">
+                                                                                                <span style="font-size:13px; font-weight:600; color:var(--room-text);">Extra Guests</span>
+                                                                                                <span style="font-size:11px; color:var(--room-muted);">Surcharge (after ${threshold} guests)</span>
+                                                                                            </div>
+                                                                                            <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.extraGuestsFee.toFixed(2)}</span>
                                                                                         </div>
-                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.extraGuestsFee.toFixed(2)}</span>
-                                                                                    </div>
-                                                                                `;
+                                                                                    `;
                         }
 
                         if (data.selectedEnhancements && data.selectedEnhancements.length > 0) {
                             let tooltipHtml = data.selectedEnhancements.map(e => `
-                                                                            <div style="display:flex; justify-content:space-between; gap:16px; margin-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:6px;">
-                                                                                <span style="opacity:0.9;">${e.item_name} (&times;${guestsCount} guests &times;${e.days_count} day${e.days_count > 1 ? 's' : ''})</span>
-                                                                                <span style="font-weight:700; color:#10b981;">${symbol}${e.item_total.toFixed(2)}</span>
-                                                                            </div>
-                                                                        `).join('');
+                                                                                <div style="display:flex; justify-content:space-between; gap:16px; margin-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:6px;">
+                                                                                    <span style="opacity:0.9;">${e.item_name} (&times;${guestsCount} guests &times;${e.days_count} day${e.days_count > 1 ? 's' : ''})</span>
+                                                                                    <span style="font-weight:700; color:#10b981;">${symbol}${e.item_total.toFixed(2)}</span>
+                                                                                </div>
+                                                                            `).join('');
                             // remove the last border bottom
                             tooltipHtml = tooltipHtml.replace(/border-bottom:1px solid rgba\(255,255,255,0\.1\); padding-bottom:6px;"(?=[^>]*>[\s\n]*$)/, '"');
 
                             html += `
-                                                                                <!-- Consolidated Enhancements Row -->
-                                                                                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                    <div style="display:flex; flex-direction:column;">
-                                                                                        <div style="display:flex; align-items:center; gap:6px;">
-                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Dining & Services</span>
-                                                                                            <div class="tooltip-container" style="cursor:help;">
-                                                                                                <i class="fas fa-info-circle" style="font-size:12px; color:var(--room-muted);"></i>
-                                                                                                <div class="custom-tooltip">
-                                                                                                    <div style="font-weight:700; margin-bottom:8px; font-size:11px; text-transform:uppercase; color:var(--room-muted);">Included Items</div>
-                                                                                                    ${tooltipHtml}
+                                                                                    <!-- Consolidated Enhancements Row -->
+                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                        <div style="display:flex; flex-direction:column;">
+                                                                                            <div style="display:flex; align-items:center; gap:6px;">
+                                                                                                <span style="font-size:13px; font-weight:600; color:var(--room-text);">Dining & Services</span>
+                                                                                                <div class="tooltip-container" style="cursor:help;">
+                                                                                                    <i class="fas fa-info-circle" style="font-size:12px; color:var(--room-muted);"></i>
+                                                                                                    <div class="custom-tooltip">
+                                                                                                        <div style="font-weight:700; margin-bottom:8px; font-size:11px; text-transform:uppercase; color:var(--room-muted);">Included Items</div>
+                                                                                                        ${tooltipHtml}
+                                                                                                    </div>
                                                                                                 </div>
                                                                                             </div>
+                                                                                            <span style="font-size:11px; color:var(--room-muted);">${data.selectedEnhancements.length} item${data.selectedEnhancements.length > 1 ? 's' : ''} selected</span>
                                                                                         </div>
-                                                                                        <span style="font-size:11px; color:var(--room-muted);">${data.selectedEnhancements.length} item${data.selectedEnhancements.length > 1 ? 's' : ''} selected</span>
+                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.totalEnhancementFee.toFixed(2)}</span>
                                                                                     </div>
-                                                                                    <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.totalEnhancementFee.toFixed(2)}</span>
-                                                                                </div>
-                                                                            `;
+                                                                                `;
                         }
 
                         if (data.serviceFeeAmt > 0) {
                             html += `
-                                                                                    <!-- Service Fee Row -->
-                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                        <div style="display:flex; flex-direction:column;">
-                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Service Fee</span>
-                                                                                            <span style="font-size:11px; color:var(--room-muted);">Platform maintenance (${data.serviceFeePct}%)</span>
+                                                                                        <!-- Service Fee Row -->
+                                                                                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                            <div style="display:flex; flex-direction:column;">
+                                                                                                <span style="font-size:13px; font-weight:600; color:var(--room-text);">Service Fee</span>
+                                                                                                <span style="font-size:11px; color:var(--room-muted);">Platform maintenance (${data.serviceFeePct}%)</span>
+                                                                                            </div>
+                                                                                            <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.serviceFeeAmt.toFixed(2)}</span>
                                                                                         </div>
-                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.serviceFeeAmt.toFixed(2)}</span>
-                                                                                    </div>
-                                                                                `;
+                                                                                    `;
                         }
 
                         if (data.taxAmt > 0) {
                             const taxLabel = data.taxType === 'percentage' ? `Taxes (${data.taxRate}%)` : 'Taxes';
                             html += `
-                                                                                    <!-- Taxes Row -->
-                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                        <div style="display:flex; flex-direction:column;">
-                                                                                            <span style="font-size:13px; font-weight:600; color:var(--room-text);">Taxes</span>
-                                                                                            <span style="font-size:11px; color:var(--room-muted);">${taxLabel}</span>
+                                                                                        <!-- Taxes Row -->
+                                                                                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                            <div style="display:flex; flex-direction:column;">
+                                                                                                <span style="font-size:13px; font-weight:600; color:var(--room-text);">Taxes</span>
+                                                                                                <span style="font-size:11px; color:var(--room-muted);">${taxLabel}</span>
+                                                                                            </div>
+                                                                                            <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.taxAmt.toFixed(2)}</span>
                                                                                         </div>
-                                                                                        <span style="font-size:14px; font-weight:700; color:var(--room-text);">${symbol}${data.taxAmt.toFixed(2)}</span>
-                                                                                    </div>
-                                                                                `;
+                                                                                    `;
                         }
 
                         html += `
-                                                                                    <!-- Total Separator -->
-                                                                                    <div style="height:1px; background:var(--room-border); margin:8px 0;"></div>
+                                                                                        <!-- Total Separator -->
+                                                                                        <div style="height:1px; background:var(--room-border); margin:8px 0;"></div>
 
-                                                                                    <!-- Final Grand Total -->
-                                                                                    <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
-                                                                                        <span style="font-size:15px; font-weight:800; color:var(--room-text);">Total Price</span>
-                                                                                        <span style="font-size:18px; font-weight:800; color:#10b981; text-shadow: 0 0 10px rgba(16,185,129,0.1);">${symbol}${data.finalTotal.toFixed(2)}</span>
+                                                                                        <!-- Final Grand Total -->
+                                                                                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:4px;">
+                                                                                            <span style="font-size:15px; font-weight:800; color:var(--room-text);">Total Price</span>
+                                                                                            <span style="font-size:18px; font-weight:800; color:#10b981; text-shadow: 0 0 10px rgba(16,185,129,0.1);">${symbol}${data.finalTotal.toFixed(2)}</span>
+                                                                                        </div>
                                                                                     </div>
-                                                                                </div>
-                                                                            `;
+                                                                                `;
 
                         breakdownEl.innerHTML = html;
                         breakdownEl.style.display = "block";

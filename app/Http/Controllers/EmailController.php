@@ -188,4 +188,50 @@ class EmailController extends Controller
             ]);
         }
     }
+
+    // ── Review notifications ──────────────────────────────────────────────────
+
+    public static function sendReviewPrompt(\App\Models\Reservation $reservation): void
+    {
+        if (!self::configureMailer()) return;
+
+        $user = $reservation->user;
+        if (!$user || !$user->email) {
+            Log::error('EmailController: Cannot send review prompt email. Reservation has no user email.', ['reservation_id' => $reservation->id]);
+            return;
+        }
+
+        try {
+            Mail::to($user->email)->send(new \App\Mail\ReviewPromptMail($reservation));
+            Log::info('EmailController: Review prompt email sent successfully.', ['user_email' => $user->email, 'reservation_id' => $reservation->id]);
+        } catch (\Exception $e) {
+            Log::error('EmailController: Failed to send review prompt email.', [
+                'error' => $e->getMessage(),
+                'user_email' => $user->email,
+                'reservation_id' => $reservation->id
+            ]);
+        }
+    }
+
+    public static function sendHostReviewNotification(\App\Models\Reservation $reservation, \App\Models\Review $review): void
+    {
+        if (!self::configureMailer()) return;
+
+        $hostUser = $reservation->room->user;
+        if (!$hostUser || !$hostUser->email) {
+            Log::error('EmailController: Cannot send host review notification email. Host has no email.', ['reservation_id' => $reservation->id]);
+            return;
+        }
+
+        try {
+            Mail::to($hostUser->email)->send(new \App\Mail\HostReviewNotificationMail($reservation, $review));
+            Log::info('EmailController: Host review notification email sent successfully.', ['host_email' => $hostUser->email, 'reservation_id' => $reservation->id]);
+        } catch (\Exception $e) {
+            Log::error('EmailController: Failed to send host review notification email.', [
+                'error' => $e->getMessage(),
+                'host_email' => $hostUser->email,
+                'reservation_id' => $reservation->id
+            ]);
+        }
+    }
 }

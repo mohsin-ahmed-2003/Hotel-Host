@@ -52,4 +52,9 @@ class User extends Authenticatable
         if ($this->isAdmin()) return true;
         return in_array($permission, $this->permissions ?? []);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

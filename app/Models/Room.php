@@ -80,6 +80,11 @@ class Room extends Model
         return $this->hasOne(RoomResubmitReason::class);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
     public function getResubmitReasonTextAttribute()
     {
         return $this->resubmitReason->reason ?? '';

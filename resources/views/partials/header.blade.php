@@ -434,6 +434,7 @@
                         </div>
                         <!-- <a href="/">Home</a> -->
                         <a href="/profile">My Profile</a>
+                        <a href="{{ route('account.index') }}">Accounts</a>
                         <a href="/dashboard">Dashboard</a>
                         <a href="/trips">Trips</a>
                         <a href="/reservations">Reservations</a>
