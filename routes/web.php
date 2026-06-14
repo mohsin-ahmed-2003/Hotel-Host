@@ -159,6 +159,10 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::resource('countries', \App\Http\Controllers\Admin\CountryController::class);
     Route::resource('currencies', \App\Http\Controllers\Admin\CurrencyController::class);
 
+    // Currency Rates
+    Route::post('currency-rates/sync', [\App\Http\Controllers\Admin\CurrencyRateController::class, 'sync'])->name('currency-rates.sync');
+    Route::resource('currency-rates', \App\Http\Controllers\Admin\CurrencyRateController::class);
+
     // Manage Reservations
     Route::get('/reservations', [\App\Http\Controllers\Admin\ReservationController::class, 'index'])->name('reservations.index');
     Route::get('/reservations/{reservation}', [\App\Http\Controllers\Admin\ReservationController::class, 'show'])->name('reservations.show');

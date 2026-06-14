@@ -1109,6 +1109,17 @@
                 <span class="nav-label">Currencies</span>
             </a>
 
+            <a href="{{ route('admin.currency-rates.index') }}"
+                class="nav-item {{ request()->routeIs('admin.currency-rates*') ? 'active' : '' }}"
+                data-tooltip="Manage Currency Rates">
+                <span class="nav-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                    </svg>
+                </span>
+                <span class="nav-label">Currency Rates</span>
+            </a>
+
             <a href="{{ route('admin.subscription-plans.index') }}"
                 class="nav-item {{ request()->routeIs('admin.subscription-plans*') ? 'active' : '' }}"
                 data-tooltip="Subscription Plans">
