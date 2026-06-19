@@ -178,6 +178,11 @@ function buildCustomSelect(nativeSelect, opts = {}) {
         if (!wrap.contains(e.target)) close();
     });
 
+    // Close on scroll
+    window.addEventListener('scroll', () => {
+        if (wrap.classList.contains('open')) close();
+    }, { passive: true });
+
     updateTrigger();
 }
 

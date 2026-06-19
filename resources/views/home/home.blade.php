@@ -357,92 +357,7 @@
             color: #cbd5e1 !important;
         }
 
-        /* ── Styled Custom Select Dropdown Overrides inside Search Bar ── */
-        .hero-search-bar-wrap .custom-select-wrap {
-            width: 100%;
-            background: transparent !important;
-            border: none !important;
-            position: relative;
-        }
 
-        .hero-search-bar-wrap .cs-trigger {
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-            color: #ffffff !important;
-            font-size: 14px !important;
-            font-weight: 800 !important;
-            box-shadow: none !important;
-            height: auto !important;
-            min-height: unset !important;
-            line-height: normal !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            cursor: pointer;
-            outline: none !important;
-        }
-
-        .hero-search-bar-wrap .cs-text {
-            font-size: 14px !important;
-            font-weight: 800 !important;
-            color: #ffffff !important;
-            padding: 2px 0 !important;
-        }
-
-        .hero-search-bar-wrap .cs-arrow {
-            color: #818cf8 !important;
-            width: 12px !important;
-            height: 12px !important;
-            margin-left: 6px;
-            flex-shrink: 0;
-        }
-
-        /* Custom options list dropdown panel - Gorgeous Slate Dark Theme! */
-        .hero-search-bar-wrap .cs-panel {
-            background: #1e293b !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            border-radius: 12px !important;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
-            margin-top: 8px !important;
-            padding: 4px 0 !important;
-            z-index: 99999 !important;
-            width: 140px !important;
-            /* Perfectly sized to fit "10+ Guests" comfortably */
-            position: absolute;
-            top: 100%;
-            left: 0;
-        }
-
-        .hero-search-bar-wrap .cs-options {
-            max-height: none !important;
-            /* Completely remove max-height constraints */
-            overflow-y: visible !important;
-            /* Remove scrollbars entirely */
-        }
-
-        .hero-search-bar-wrap .cs-option {
-            background: transparent !important;
-            color: #f1f5f9 !important;
-            padding: 8px 12px !important;
-            font-size: 13.5px !important;
-            font-weight: 700 !important;
-            cursor: pointer !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-            transition: all 0.2s ease !important;
-            text-align: left;
-        }
-
-        .hero-search-bar-wrap .cs-option:last-child {
-            border-bottom: none !important;
-        }
-
-        .hero-search-bar-wrap .cs-option:hover,
-        .hero-search-bar-wrap .cs-option.selected {
-            background: #6366f1 !important;
-            /* Indigo active color */
-            color: #ffffff !important;
-        }
 
         .field-divider {
             width: 1.5px;
@@ -555,18 +470,39 @@
             }
         }
 
-        /* ── Flatpickr Custom Premium Styling ── */
         .flatpickr-calendar,
         .flatpickr-calendar.open,
         .flatpickr-calendar.animate.open {
-            transform: scale(0.8) !important;
-            transform-origin: top left !important;
-            border-radius: 16px !important;
+            transform: none !important;
+            border-radius: 12px !important;
             border: 1px solid rgba(99, 102, 241, 0.3) !important;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
-            padding: 5px !important;
-            width: 305px !important;
+            padding: 8px !important;
+            width: 275px !important;
             background: #ffffff !important;
+            box-sizing: border-box !important;
+        }
+        
+        .flatpickr-days {
+            width: 100% !important;
+        }
+        
+        .dayContainer {
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            justify-content: space-around !important;
+        }
+
+        .flatpickr-day {
+            max-width: 34px !important;
+            height: 34px !important;
+            line-height: 34px !important;
+            font-size: 13px !important;
+        }
+        
+        span.flatpickr-weekday {
+            font-size: 12px !important;
         }
 
         /* Force Clear Day Number Visibility in Light Mode! */
@@ -1211,7 +1147,6 @@
             // ── Custom Guest Select dropdown builder without search ──
             const guestsSelect = document.getElementById('guests-select');
             if (guestsSelect && typeof buildCustomSelect === 'function') {
-                // Remove build guard flag temporarily to let our custom builder render it
                 guestsSelect.removeAttribute('data-cs-built');
                 buildCustomSelect(guestsSelect, { showSearch: false });
             }

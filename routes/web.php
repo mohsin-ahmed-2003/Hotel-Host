@@ -233,3 +233,27 @@ Route::middleware('web')->group(function () {
     Route::delete('/wishlist/group', [\App\Http\Controllers\WishlistController::class, 'deleteGroup'])->name('wishlist.delete_group');
 });
 
+// Test query for updating reservation dates
+Route::get('/test_query/{id}/{checkin}/{checkout}', function ($id, $checkin, $checkout) {
+    try {
+        $reservation = \App\Models\Reservation::findOrFail($id);
+        
+        // Handle both dd-mm-yy and dd-mm-yyyy formats
+        $checkinFormat = strlen(explode('-', $checkin)[2] ?? '') == 4 ? 'd-m-Y' : 'd-m-y';
+        $checkoutFormat = strlen(explode('-', $checkout)[2] ?? '') == 4 ? 'd-m-Y' : 'd-m-y';
+
+        $checkinDate = \Carbon\Carbon::createFromFormat($checkinFormat, $checkin)->format('Y-m-d');
+        $checkoutDate = \Carbon\Carbon::createFromFormat($checkoutFormat, $checkout)->format('Y-m-d');
+
+        $reservation->check_in = $checkinDate;
+        $reservation->check_out = $checkoutDate;
+        $reservation->save();
+
+        return "true";
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return "Error: Reservation with ID {$id} not found.";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage() . ". Please ensure the date format is exactly dd-mm-yy (e.g., 25-12-24).";
+    }
+});
+

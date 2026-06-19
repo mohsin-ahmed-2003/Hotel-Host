@@ -139,35 +139,218 @@
         white-space: nowrap;
     }
 
+    /* Header version of the hero search bar */
     .header-search {
         flex: 1;
-        max-width: 340px;
+        max-width: 700px;
+        opacity: 0;
+        transform: translateY(15px) scale(0.95);
+        pointer-events: none;
+        transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        margin: 0 16px;
     }
 
-    .header-search input {
-        width: 90%;
-        padding: 9px 16px 9px 38px;
-        border: 1px solid var(--header-border);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.07);
-        color: var(--header-text);
-        font-size: 13px;
-        outline: none;
-        font-family: inherit;
+    .header-search.active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+
+    .header-search .hero-search-bar-wrap {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 40px;
+        padding: 4px 6px 4px 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        max-width: 100%;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    body.dark-mode .header-search .hero-search-bar-wrap {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-search .hero-search-form {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .header-search .search-field {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1;
+        min-width: 80px;
+    }
+
+    .header-search .field-label {
+        font-size: 9px;
+        font-weight: 800;
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .header-search .field-label i,
+    .header-search .field-label svg {
+        font-size: 11px;
+        color: var(--accent);
+    }
+
+    .header-search .field-input { background: transparent; border: none; color: var(--header-text) !important; font-size: 13px; font-weight: 700; outline: none; width: 100%; padding: 0; }
+    
+    .header-search select.field-input {
+        background: transparent !important;
+        color: inherit !important;
+        border: none !important;
+        outline: none !important;
+    }
+
+    .header-search .field-input::placeholder {
+        color: var(--header-muted) !important;
+        font-weight: 400;
+    }
+
+    .header-search .field-divider {
+        width: 1px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    body.dark-mode .header-search .field-divider {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .header-search .search-submit-btn {
+        background: var(--accent);
+        border: none;
+        border-radius: 50% !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 14px;
+        cursor: pointer;
         transition: all 0.2s;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%238fa3c8' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: 12px center;
+        flex-shrink: 0;
+        box-sizing: border-box !important;
     }
 
-    .header-search input::placeholder {
-        color: var(--header-muted);
+    .header-search .search-submit-btn:hover {
+        background: var(--accent-hover);
+        transform: scale(1.05);
     }
 
-    .header-search input:focus {
-        background-color: rgba(255, 255, 255, 0.1);
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    /* ── Styled Custom Select Dropdown Overrides inside Search Bar ── */
+    .hero-search-bar-wrap .custom-select-wrap {
+        width: 100%;
+        background: transparent !important;
+        border: none !important;
+        position: relative;
+    }
+
+    .hero-search-bar-wrap .cs-trigger {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        color: var(--header-text) !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        box-shadow: none !important;
+        height: auto !important;
+        min-height: unset !important;
+        line-height: normal !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        cursor: pointer;
+        outline: none !important;
+    }
+
+    .hero-search-bar-wrap .cs-text {
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        color: inherit !important;
+        padding: 0 !important;
+    }
+
+    .hero-search-bar-wrap .cs-arrow {
+        color: var(--accent) !important;
+        width: 12px !important;
+        height: 12px !important;
+        margin-left: 6px;
+        flex-shrink: 0;
+    }
+
+    /* Custom options list dropdown panel */
+    .hero-search-bar-wrap .cs-panel {
+        background: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+        margin-top: 8px !important;
+        padding: 4px 0 !important;
+        z-index: 99999 !important;
+        width: 140px !important;
+        position: absolute;
+        top: 100%;
+        left: 0;
+    }
+
+    .hero-search-bar-wrap .cs-options {
+        max-height: none !important;
+        overflow-y: visible !important;
+    }
+
+    .hero-search-bar-wrap .cs-option {
+        background: transparent !important;
+        color: #f1f5f9 !important;
+        padding: 8px 12px !important;
+        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        transition: all 0.2s ease !important;
+        text-align: left;
+    }
+
+    .hero-search-bar-wrap .cs-option:last-child {
+        border-bottom: none !important;
+    }
+
+    .hero-search-bar-wrap .cs-option:hover,
+    .hero-search-bar-wrap .cs-option.selected {
+        background: #6366f1 !important;
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .header-search .cs-panel {
+        background: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+    }
+    body.dark-mode .header-search .cs-option {
+        color: #f1f5f9 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .header-search .search-submit-btn span {
+        display: none;
     }
 
     .homenavbar {
@@ -363,6 +546,125 @@
             display: none !important;
         }
     }
+
+    /* ── Flatpickr Custom Premium Styling ── */
+    .flatpickr-calendar,
+    .flatpickr-calendar.open,
+    .flatpickr-calendar.animate.open {
+        transform: none !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(99, 102, 241, 0.3) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+        padding: 8px !important;
+        width: 275px !important;
+        background: #ffffff !important;
+        box-sizing: border-box !important;
+    }
+    
+    .flatpickr-days {
+        width: 100% !important;
+    }
+    
+    .dayContainer {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        justify-content: space-around !important;
+    }
+
+    .flatpickr-day {
+        max-width: 34px !important;
+        height: 34px !important;
+        line-height: 34px !important;
+        font-size: 13px !important;
+    }
+    
+    span.flatpickr-weekday {
+        font-size: 12px !important;
+    }
+
+    /* Force Clear Day Number Visibility in Light Mode! */
+    .flatpickr-calendar,
+    .flatpickr-month,
+    .flatpickr-weekday,
+    .flatpickr-current-month,
+    .flatpickr-monthDropdown-months,
+    .flatpickr-day {
+        color: #1e293b !important;
+        fill: #1e293b !important;
+    }
+
+    body.dark-mode .flatpickr-calendar {
+        background: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    /* Bold Highlight today's date with light tint and border outline */
+    .flatpickr-day.today {
+        background: rgba(99, 102, 241, 0.12) !important;
+        border-color: #6366f1 !important;
+        color: #6366f1 !important;
+        font-weight: 800 !important;
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.selected:hover {
+        background: #10b981 !important;
+        border-color: #10b981 !important;
+        color: white !important;
+    }
+
+    body.dark-mode .flatpickr-calendar,
+    body.dark-mode .flatpickr-month,
+    body.dark-mode .flatpickr-weekday,
+    body.dark-mode .flatpickr-current-month,
+    body.dark-mode .flatpickr-monthDropdown-months,
+    body.dark-mode .numInputWrapper span,
+    body.dark-mode .flatpickr-day {
+        color: #f1f5f9 !important;
+        fill: #f1f5f9 !important;
+    }
+
+    body.dark-mode .flatpickr-day.flatpickr-disabled,
+    body.dark-mode .flatpickr-day.disabled {
+        color: #475569 !important;
+        background: transparent !important;
+        opacity: 0.45 !important;
+    }
+
+    .flatpickr-day.is-sunday:not(.flatpickr-disabled):not(.disabled) {
+        color: #ef4444 !important;
+        font-weight: bold;
+    }
+
+    .flatpickr-day.is-checkin-date,
+    .flatpickr-day.is-checkin-date:hover,
+    .flatpickr-day.is-checkout-date,
+    .flatpickr-day.is-checkout-date:hover {
+        background: #10b981 !important;
+        border-color: #10b981 !important;
+        color: white !important;
+        font-weight: bold !important;
+        opacity: 0.95 !important;
+    }
+
+    /* Range selection highlighting styles */
+    .flatpickr-day.is-in-range,
+    .flatpickr-day.is-hover-range,
+    .flatpickr-day:hover {
+        background: #f1f5f9 !important;
+        border-color: #e2e8f0 !important;
+        color: #0f172a !important;
+    }
+
+    body.dark-mode .flatpickr-day.is-in-range,
+    body.dark-mode .flatpickr-day.is-hover-range,
+    body.dark-mode .flatpickr-day:hover {
+        background: #334155 !important;
+        border-color: #1e293b !important;
+        color: #f8fafc !important;
+    }
 </style>
 
 <header class="header-container">
@@ -379,7 +681,44 @@
         </a>
 
         <div class="header-search">
-            <input type="text" placeholder="Search destinations, hotels...">
+            <div class="hero-search-bar-wrap">
+                <form action="{{ route('rooms.index') ?? '/' }}" method="GET" class="hero-search-form">
+                    <div class="search-field">
+                        <span class="field-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Location</span>
+                        <input type="text" name="city" id="header-location" placeholder="Where are you going?"
+                            class="field-input" value="{{ request('city') }}">
+                    </div>
+                    <div class="field-divider"></div>
+
+                    <div class="search-field">
+                        <span class="field-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Check In</span>
+                        <input type="text" name="checkin" id="header-checkin" placeholder="Add date" class="field-input"
+                            value="{{ request('checkin') }}">
+                    </div>
+                    <div class="field-divider"></div>
+
+                    <div class="search-field">
+                        <span class="field-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> Check Out</span>
+                        <input type="text" name="checkout" id="header-checkout" placeholder="Add date"
+                            class="field-input" value="{{ request('checkout') }}">
+                    </div>
+                    <div class="field-divider"></div>
+
+                    <div class="search-field" style="max-width: 100px;">
+                        <span class="field-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Guests</span>
+                        <select name="guests" id="header-guests-select" data-cs-built="1" class="field-input select-styled">
+                            @for($i = 1; $i <= 10; $i++)
+                                <option value="{{ $i }}" {{ request('guests', 2) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                            @endfor
+                            <option value="10+" {{ request('guests') === '10+' ? 'selected' : '' }}>10+</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="search-submit-btn" aria-label="Search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </button>
+                </form>
+            </div>
         </div>
 
         <nav class="homenavbar">
@@ -506,5 +845,69 @@
         const wrap = document.getElementById('headerProfileWrap');
         const dd = document.getElementById('headerDropdown');
         if (wrap && dd && !wrap.contains(e.target)) dd.classList.remove('open');
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const headerSearch = document.querySelector('.header-search');
+        const heroSection = document.querySelector('.hero-search-bar-wrap:not(.header-search .hero-search-bar-wrap)');
+
+        if (heroSection && headerSearch) {
+            const handleScroll = () => {
+                const rect = heroSection.getBoundingClientRect();
+                if (rect.bottom < 60) {
+                    headerSearch.classList.add('active');
+                } else {
+                    headerSearch.classList.remove('active');
+                }
+            };
+            window.addEventListener('scroll', handleScroll, { passive: true });
+            handleScroll();
+        } else if (headerSearch) {
+            headerSearch.classList.add('active');
+        }
+
+        // Initialize header search autocomplete and calendars if libraries are loaded
+        setTimeout(() => {
+            if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+                const headerLoc = document.getElementById('header-location');
+                if (headerLoc) {
+                    new google.maps.places.Autocomplete(headerLoc, { fields: ['address_components', 'geometry', 'name', 'formatted_address'] });
+                }
+            }
+
+            if (typeof flatpickr !== 'undefined') {
+                const headerCheckin = document.getElementById('header-checkin');
+                const headerCheckout = document.getElementById('header-checkout');
+                if (headerCheckin && headerCheckout) {
+                    const hCheckoutPicker = flatpickr("#header-checkout", { minDate: "today", dateFormat: "Y-m-d" });
+                    flatpickr("#header-checkin", {
+                        minDate: "today",
+                        dateFormat: "Y-m-d",
+                        onChange: function (selectedDates, dateStr) {
+                            hCheckoutPicker.set("minDate", dateStr ? dateStr : "today");
+                            hCheckoutPicker.set("disable", [dateStr]);
+                            hCheckoutPicker.redraw();
+                            setTimeout(() => hCheckoutPicker.open(), 50);
+                        }
+                    });
+                }
+            }
+
+            const headerGuestsSelect = document.getElementById('header-guests-select');
+            if (headerGuestsSelect && typeof buildCustomSelect === 'function') {
+                headerGuestsSelect.removeAttribute('data-cs-built');
+                buildCustomSelect(headerGuestsSelect, { showSearch: false });
+            }
+        }, 800);
+
+        // Close any open datepickers when scrolling
+        window.addEventListener('scroll', () => {
+            document.querySelectorAll('.flatpickr-input, .field-input').forEach(input => {
+                if (input._flatpickr && input._flatpickr.isOpen) {
+                    input._flatpickr.close();
+                    input.blur();
+                }
+            });
+        }, { passive: true });
     });
 </script>
