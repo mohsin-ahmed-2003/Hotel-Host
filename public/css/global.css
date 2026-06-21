@@ -271,3 +271,67 @@ body.dark-mode .cs-option.selected,
 .custom-select-wrap>select {
     display: none !important;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   GOOGLE AUTOCOMPLETE DROPDOWN STYLING
+   ═══════════════════════════════════════════════════════════ */
+.pac-container {
+    background-color: #ffffff !important;
+    border: 1px solid rgba(99, 102, 241, 0.25) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+    font-family: inherit !important;
+    margin-top: 4px !important;
+    z-index: 99999 !important;
+    min-width: 350px !important;
+    /* Force a generous width so address lines do not clip */
+    max-width: 450px !important;
+}
+
+body.dark-mode .pac-container {
+    background-color: #1e293b !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
+}
+
+.pac-item {
+    padding: 10px 14px !important;
+    font-size: 13px !important;
+    color: #475569 !important;
+    cursor: pointer !important;
+    border-top: 1px solid rgba(99, 102, 241, 0.08) !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+body.dark-mode .pac-item {
+    color: #cbd5e1 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.pac-item:hover {
+    background-color: #f8fafc !important;
+}
+
+body.dark-mode .pac-item:hover {
+    background-color: #334155 !important;
+}
+
+.pac-item-query {
+    font-size: 13px !important;
+    color: #1e293b !important;
+    font-weight: 700 !important;
+}
+
+body.dark-mode .pac-item-query {
+    color: #ffffff !important;
+}
+
+.pac-matched {
+    color: #6366f1 !important;
+}
+
+.pac-icon {
+    display: none !important;
+    /* Hide Google default icons for absolute clean UI */
+}

@@ -682,7 +682,7 @@
 
         <div class="header-search">
             <div class="hero-search-bar-wrap">
-                <form action="{{ route('rooms.index') ?? '/' }}" method="GET" class="hero-search-form">
+                <form action="{{ route('search') }}" method="GET" class="hero-search-form" id="global-header-search-form">
                     <div class="search-field">
                         <span class="field-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Location</span>
                         <input type="text" name="city" id="header-location" placeholder="Where are you going?"
@@ -871,7 +871,13 @@
             if (typeof google !== 'undefined' && google.maps && google.maps.places) {
                 const headerLoc = document.getElementById('header-location');
                 if (headerLoc) {
-                    new google.maps.places.Autocomplete(headerLoc, { fields: ['address_components', 'geometry', 'name', 'formatted_address'] });
+                    const autocomplete = new google.maps.places.Autocomplete(headerLoc, { fields: ['address_components', 'geometry', 'name', 'formatted_address'] });
+                    autocomplete.addListener('place_changed', function() {
+                        const place = autocomplete.getPlace();
+                        if (place.geometry) {
+                            headerLoc.setAttribute('data-place-selected', '1');
+                        }
+                    });
                 }
             }
 
@@ -909,5 +915,48 @@
                 }
             });
         }, { passive: true });
+
+        // Google Autocomplete enforcement for header search
+        const hForm = document.getElementById('global-header-search-form');
+        const hLocInput = document.getElementById('header-location');
+        if (hForm && hLocInput) {
+            // Create inline error message
+            const hErrorMsg = document.createElement('div');
+            hErrorMsg.style.color = '#ef4444'; // Red
+            hErrorMsg.style.fontSize = '11px';
+            hErrorMsg.style.marginTop = '2px';
+            hErrorMsg.style.fontWeight = '600';
+            hErrorMsg.style.display = 'none';
+            hErrorMsg.style.textAlign = 'left';
+            hErrorMsg.style.position = 'absolute';
+            hErrorMsg.style.bottom = '-18px';
+            hErrorMsg.style.left = '16px';
+            hErrorMsg.innerText = 'Please select a location from the dropdown.';
+            
+            // Add relative positioning to wrapper and append
+            hLocInput.parentNode.style.position = 'relative';
+            hLocInput.parentNode.appendChild(hErrorMsg);
+
+            hLocInput.addEventListener('input', () => {
+                hLocInput.removeAttribute('data-place-selected');
+                hErrorMsg.style.display = 'none';
+            });
+            hForm.addEventListener('submit', function(e) {
+                if (!hLocInput.value.trim()) {
+                    e.preventDefault();
+                    hErrorMsg.innerText = 'Please enter a destination.';
+                    hErrorMsg.style.display = 'block';
+                    hLocInput.focus();
+                } else if (!hLocInput.hasAttribute('data-place-selected')) {
+                    // Strict validation
+                    e.preventDefault();
+                    hErrorMsg.innerText = 'Please select a location from the dropdown.';
+                    hErrorMsg.style.display = 'block';
+                    hLocInput.focus();
+                } else {
+                    hErrorMsg.style.display = 'none';
+                }
+            });
+        }
     });
 </script>

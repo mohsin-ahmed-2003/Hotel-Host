@@ -588,68 +588,6 @@
             color: #f8fafc !important;
         }
 
-        /* ── Google Autocomplete Dropdown Styling ── */
-        .pac-container {
-            background-color: #ffffff !important;
-            border: 1px solid rgba(99, 102, 241, 0.25) !important;
-            border-radius: 12px !important;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
-            font-family: inherit !important;
-            margin-top: 4px !important;
-            z-index: 99999 !important;
-            min-width: 350px !important;
-            /* Force a generous width so address lines do not clip */
-            max-width: 450px !important;
-        }
-
-        body.dark-mode .pac-container {
-            background-color: #1e293b !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4) !important;
-        }
-
-        .pac-item {
-            padding: 10px 14px !important;
-            font-size: 13px !important;
-            color: #475569 !important;
-            cursor: pointer !important;
-            border-top: 1px solid rgba(99, 102, 241, 0.08) !important;
-            display: flex !important;
-            align-items: center !important;
-        }
-
-        body.dark-mode .pac-item {
-            color: #cbd5e1 !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
-        }
-
-        .pac-item:hover {
-            background-color: #f8fafc !important;
-        }
-
-        body.dark-mode .pac-item:hover {
-            background-color: #334155 !important;
-        }
-
-        .pac-item-query {
-            font-size: 13px !important;
-            color: #1e293b !important;
-            font-weight: 700 !important;
-        }
-
-        body.dark-mode .pac-item-query {
-            color: #ffffff !important;
-        }
-
-        .pac-matched {
-            color: #6366f1 !important;
-        }
-
-        .pac-icon {
-            display: none !important;
-            /* Hide Google default icons for absolute clean UI */
-        }
-
         /* ── Main Layout Sections ── */
         .home-sections-container {
             max-width: 1200px;
@@ -1027,7 +965,7 @@
 
             <!-- Search bar with: Location, Check-in, Check-out, Number of Guests & Search Button -->
             <div class="hero-search-bar-wrap">
-                <form action="/" method="GET" class="hero-search-form">
+                <form action="{{ route('search') }}" method="GET" class="hero-search-form" id="home-hero-search-form">
                     <!-- Location field -->
                     <div class="search-field">
                         <span class="field-label"><i class="fas fa-map-marker-alt"></i> Location</span>
@@ -1117,11 +1055,6 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <!-- Google Places Autocomplete API loaded dynamically with map_key -->
-    @php $mapKey = \App\Models\SiteSetting::get('map_key'); @endphp
-    @if($mapKey)
-        <script src="https://maps.googleapis.com/maps/api/js?key={{ $mapKey }}&libraries=places"></script>
-    @endif
-
     <script>
         // Initialize Autocomplete, Select triggers and Flatpickr Calendars
         document.addEventListener('DOMContentLoaded', function () {
@@ -1133,6 +1066,13 @@
                     fields: ['address_components', 'geometry', 'name', 'formatted_address']
                 });
 
+                autocomplete.addListener('place_changed', function() {
+                    const place = autocomplete.getPlace();
+                    if (place.geometry) {
+                        locationInput.setAttribute('data-place-selected', '1');
+                    }
+                });
+
                 // Prevent form submission when selecting suggestions using the Enter key
                 google.maps.event.addDomListener(locationInput, 'keydown', function (e) {
                     if (e.key === 'Enter') {
@@ -1141,6 +1081,48 @@
                             e.preventDefault();
                         }
                     }
+                });
+            }
+
+            const homeSearchForm = document.getElementById('home-hero-search-form');
+            if (homeSearchForm && locationInput) {
+                // Create inline error message
+                const errorMsg = document.createElement('div');
+                errorMsg.style.color = '#ef4444'; // Red
+                errorMsg.style.fontSize = '12px';
+                errorMsg.style.marginTop = '4px';
+                errorMsg.style.fontWeight = '600';
+                errorMsg.style.display = 'none';
+                errorMsg.style.textAlign = 'left';
+                errorMsg.style.position = 'absolute';
+                errorMsg.style.bottom = '-9px';
+                errorMsg.style.left = '5px';
+                errorMsg.innerText = 'Please select a specific location from the dropdown suggestions.';
+                
+                // Add relative positioning to the wrapper if needed and append error
+                locationInput.parentNode.style.position = 'relative';
+                locationInput.parentNode.appendChild(errorMsg);
+
+                homeSearchForm.addEventListener('submit', function(e) {
+                    if (!locationInput.value.trim()) {
+                        e.preventDefault();
+                        errorMsg.innerText = 'Please enter a destination to search.';
+                        errorMsg.style.display = 'block';
+                        locationInput.focus();
+                    } else if (!locationInput.hasAttribute('data-place-selected')) {
+                        // Strict validation
+                        e.preventDefault();
+                        errorMsg.innerText = 'Please select location.';
+                        errorMsg.style.display = 'block';
+                        locationInput.focus();
+                    } else {
+                        errorMsg.style.display = 'none';
+                    }
+                });
+
+                locationInput.addEventListener('input', () => {
+                    locationInput.removeAttribute('data-place-selected');
+                    errorMsg.style.display = 'none';
                 });
             }
 

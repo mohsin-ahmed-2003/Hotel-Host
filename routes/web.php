@@ -37,6 +37,9 @@ Route::get('/rooms/{room}', [\App\Http\Controllers\RoomController::class, 'show'
 Route::post('/rooms/{room}/calculate-price', [\App\Http\Controllers\RoomController::class, 'calculatePrice'])->name('rooms.calculate-price');
 Route::match(['GET', 'POST'], '/rooms/{room}/booking', [\App\Http\Controllers\RoomController::class, 'booking_page'])->name('rooms.booking_page');
 
+// Advanced Search
+Route::get('/search', [\App\Http\Controllers\SearchController::class, 'index'])->name('search');
+
 // Payment Routes
 Route::post('/payment/paypal/initiate', [\App\Http\Controllers\PaymentController::class, 'initiatePaypal'])->name('payment.paypal.initiate');
 Route::get('/payment/paypal/success', [\App\Http\Controllers\PaymentController::class, 'paypalSuccess'])->name('payment.paypal.success');
