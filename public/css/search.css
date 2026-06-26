@@ -144,7 +144,7 @@
 .rooms-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 32px;
+    gap: 30px;
 }
 
 /* Premium Room Card */
@@ -238,8 +238,13 @@
     transform: translateY(-50%) scale(1);
 }
 
-.prev-btn { left: 12px; }
-.next-btn { right: 12px; }
+.prev-btn {
+    left: 12px;
+}
+
+.next-btn {
+    right: 12px;
+}
 
 .wishlist-btn {
     position: absolute;

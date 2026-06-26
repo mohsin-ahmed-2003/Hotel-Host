@@ -596,7 +596,7 @@
         }
 
         .section-header-wrapper {
-            margin-bottom: 24px;
+            margin-bottom: 14px;
             border-bottom: 1px solid var(--border);
             padding-bottom: 14px;
             display: flex;
@@ -627,7 +627,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 28px;
-            margin-bottom: 56px;
+            margin-bottom: 30px;
         }
 
         /* ── Premium Compact Room Card (Auto Height) ── */
@@ -1106,7 +1106,7 @@
                 homeSearchForm.addEventListener('submit', function(e) {
                     if (!locationInput.value.trim()) {
                         e.preventDefault();
-                        errorMsg.innerText = 'Please enter a destination to search.';
+                        errorMsg.innerText = 'Enter a destination to search.';
                         errorMsg.style.display = 'block';
                         locationInput.focus();
                     } else if (!locationInput.hasAttribute('data-place-selected')) {
