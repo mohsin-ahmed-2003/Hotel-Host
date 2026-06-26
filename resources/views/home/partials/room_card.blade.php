@@ -8,7 +8,8 @@
         $isWishlisted = in_array($room->id, $wishlistedRoomIds);
     }
 @endphp
-<div class="room-card" onclick="window.location.href='{{ route('rooms.show', $room->id) }}'">
+<div class="room-card stagger-fade-in" style="animation-delay: {{ ($loop->index ?? 0) * 0.1 }}s;"
+    onclick="window.location.href='{{ route('rooms.show', $room->id) }}'">
     <div class="room-image-slider">
         <!-- Wishlist Heart Button (Top-Right) -->
         <button class="wishlist-btn wishlist-btn-room-{{ $room->id }} {{ $isWishlisted ? 'active' : '' }}"
@@ -27,13 +28,16 @@
 
         <!-- Slides Wrapper (Eager Loaded correctly via Storage path!) -->
         <div class="slides-container">
+            <div class="skeleton-img-placeholder"></div>
             @if($room->photos && $room->photos->count() > 0)
                 @foreach($room->photos as $index => $photo)
                     <img src="{{ asset('storage/' . $photo->photo_path) }}" alt="{{ $room->title }}"
-                        class="slide-img {{ $index === 0 ? 'active' : '' }}">
+                        class="slide-img {{ $index === 0 ? 'active' : '' }}" loading="lazy"
+                        onload="if(this.classList.contains('active')) this.closest('.slides-container').classList.add('loaded')">
                 @endforeach
             @else
-                <img src="{{ asset('images/image.png') }}" alt="{{ $room->title }}" class="slide-img active">
+                <img src="{{ asset('images/image.png') }}" alt="{{ $room->title }}" class="slide-img active" loading="lazy"
+                    onload="this.closest('.slides-container').classList.add('loaded')">
             @endif
         </div>
     </div>
@@ -55,10 +59,12 @@
                             <i class="far fa-star" style="color: #fbbf24; font-size: 12px;"></i>
                         @endif
                     @endfor
-                    <span style="font-size: 11px; font-weight: 600; color: var(--body-muted); margin-left: 2px;">({{ $room->review_count }})</span>
+                    <span
+                        style="font-size: 11px; font-weight: 600; color: var(--body-muted); margin-left: 2px;">({{ $room->review_count }})</span>
                 @else
                     <span class="star-icon" style="color: var(--body-muted);"><i class="far fa-star"></i></span>
-                    <span class="no-review-text" style="margin-left: 4px; font-size: 12px; color: var(--body-muted);">No reviews</span>
+                    <span class="no-review-text" style="margin-left: 4px; font-size: 12px; color: var(--body-muted);">No
+                        reviews</span>
                 @endif
             </div>
         </div>
@@ -67,7 +73,7 @@
         <div class="room-type-space-row">
             <span class="room-property-type"><i class="fas fa-hotel" style="font-size:10px;"></i>
                 {{ $room->propertyType->name ?? 'Room' }}</span>
-            <span class="dot-separator">•</span>
+            <!-- <span class="dot-separator">•</span> -->
             <span class="room-space-type"><i class="fas fa-door-open" style="font-size:10px;"></i>
                 {{ $room->spaceType->name ?? 'Entire Space' }}</span>
         </div>

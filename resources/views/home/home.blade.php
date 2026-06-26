@@ -623,304 +623,6 @@
         }
 
         /* ── Compact Modernized Rooms Grid ── */
-        .rooms-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 28px;
-            margin-bottom: 30px;
-        }
-
-        /* ── Premium Compact Room Card (Auto Height) ── */
-        .room-card {
-            background: var(--card-bg);
-            border: 1.5px solid var(--border);
-            border-radius: 20px;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            height: auto;
-            max-width: 275px;
-            margin: 0 auto;
-            width: 100%;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
-        }
-
-        .room-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-md);
-            border-color: rgba(99, 102, 241, 0.3);
-        }
-
-        /* Slider Container */
-        .room-image-slider {
-            position: relative;
-            height: 165px;
-            overflow: hidden;
-            background: #f1f5f9;
-            flex-shrink: 0;
-            border-radius: 18px 18px 0 0;
-        }
-
-        .slides-container {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-
-        .slide-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            display: none;
-        }
-
-        .slide-img.active {
-            opacity: 1;
-            z-index: 1;
-            display: block;
-        }
-
-        /* Hover Chevron Navigation arrows */
-        .slider-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%) scale(0.85);
-            z-index: 10;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #1e293b;
-            cursor: pointer;
-            opacity: 0;
-            transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-            outline: none;
-        }
-
-        .slider-btn:hover {
-            background: #ffffff;
-            color: var(--accent);
-            transform: translateY(-50%) scale(1.05);
-        }
-
-        .room-card:hover .slider-btn {
-            opacity: 1;
-            transform: translateY(-50%) scale(1);
-        }
-
-        .prev-btn {
-            left: 12px;
-        }
-
-        .next-btn {
-            right: 12px;
-        }
-
-        /* ── Wishlist Heart Button inside top-right corner of image ── */
-        .wishlist-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            z-index: 15;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #64748b;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            outline: none;
-        }
-
-        .wishlist-btn:hover {
-            transform: scale(1.1);
-            background: #ffffff;
-            color: #ef4444;
-        }
-
-        .wishlist-btn.active {
-            color: #ef4444;
-            background: #ffffff;
-        }
-
-        body.dark-mode .wishlist-btn {
-            background: rgba(15, 23, 42, 0.8);
-            color: #94a3b8;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        body.dark-mode .wishlist-btn:hover,
-        body.dark-mode .wishlist-btn.active {
-            background: #0f172a;
-            color: #f87171;
-        }
-
-        /* ── Room Card Contents ── */
-        .room-card-content {
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            background: var(--card-bg);
-            border-top: none;
-        }
-
-        /* First Row: Room Name & Review (Right Side) */
-        .room-title-review-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .room-title-link {
-            text-decoration: none;
-            flex-grow: 1;
-            overflow: hidden;
-        }
-
-        .room-card-title {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--body-text);
-            margin: 0;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            line-height: 1.25;
-            transition: color 0.15s ease;
-        }
-
-        .room-card:hover .room-card-title {
-            color: var(--accent);
-        }
-
-        .room-card-review {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--body-text);
-            flex-shrink: 0;
-        }
-
-        .room-card-review .star-icon {
-            color: #f59e0b;
-            font-size: 11px;
-        }
-
-        .room-card-review .no-review-text {
-            font-size: 11px;
-            color: var(--body-muted);
-            font-weight: 550;
-            white-space: nowrap;
-        }
-
-        /* Second Row: Room Type and Space Type */
-        .room-type-space-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: var(--body-muted);
-            font-weight: 600;
-            margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .room-property-type {
-            color: var(--accent);
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .room-space-type {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .dot-separator {
-            color: var(--border);
-            font-size: 8px;
-        }
-
-        /* Third Row: Price below Type and Space Type */
-        .room-card-price-row {
-            display: flex;
-            align-items: center;
-            font-size: 11px;
-            color: var(--body-muted);
-            font-weight: 600;
-            margin-top: 2px;
-        }
-
-        .room-card-price-row .price-val {
-            font-size: 15px;
-            font-weight: 850;
-            color: var(--body-text);
-            margin-right: 2px;
-        }
-
-        /* Fourth Row: Compact Footer details */
-        .room-card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid var(--border);
-            padding-top: 10px;
-            margin-top: 6px;
-            font-size: 11px;
-            color: var(--body-muted);
-            font-weight: 600;
-        }
-
-        .room-location,
-        .room-guests {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .room-location {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 150px;
-        }
-
-        .room-location i {
-            color: #ef4444;
-        }
-
-        .room-guests i {
-            color: var(--accent);
-        }
     </style>
 @endsection
 
@@ -1021,6 +723,10 @@
                         <h2 class="section-main-title"><i class="fas fa-fire" style="color:#ef4444; margin-right:8px;"></i>
                             Recent Booked</h2>
                     </div>
+                    <div class="slider-nav-controls">
+                        <button class="rooms-slider-nav-btn prev-rooms-btn"><i class="fas fa-chevron-left"></i></button>
+                        <button class="rooms-slider-nav-btn next-rooms-btn"><i class="fas fa-chevron-right"></i></button>
+                    </div>
                 </div>
 
                 @include('home.partials.rooms_grid', [
@@ -1037,6 +743,10 @@
                         <span class="section-label">Highly Visited</span>
                         <h2 class="section-main-title"><i class="fas fa-eye" style="color:var(--accent); margin-right:8px;"></i>
                             Most Views</h2>
+                    </div>
+                    <div class="slider-nav-controls">
+                        <button class="rooms-slider-nav-btn prev-rooms-btn"><i class="fas fa-chevron-left"></i></button>
+                        <button class="rooms-slider-nav-btn next-rooms-btn"><i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
 
@@ -1435,7 +1145,7 @@
 
         function getSkeletonCardHtml() {
             return `
-                <div class="skeleton-card">
+                <div class="skeleton-card stagger-fade-in">
                     <div class="skeleton-image"></div>
                     <div class="skeleton-content">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1483,6 +1193,10 @@
                                     <span class="section-label">Most In Demand</span>
                                     <h2 class="section-main-title"><i class="fas fa-fire" style="color:#ef4444; margin-right:8px;"></i> Recent Booked</h2>
                                 </div>
+                                <div class="slider-nav-controls">
+                                    <button class="rooms-slider-nav-btn prev-rooms-btn"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="rooms-slider-nav-btn next-rooms-btn"><i class="fas fa-chevron-right"></i></button>
+                                </div>
                             </div>
                             ${data.recent_html}
                         </section>
@@ -1491,6 +1205,10 @@
                                 <div>
                                     <span class="section-label">Highly Visited</span>
                                     <h2 class="section-main-title"><i class="fas fa-eye" style="color:var(--accent); margin-right:8px;"></i> Most Views</h2>
+                                </div>
+                                <div class="slider-nav-controls">
+                                    <button class="rooms-slider-nav-btn prev-rooms-btn"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="rooms-slider-nav-btn next-rooms-btn"><i class="fas fa-chevron-right"></i></button>
                                 </div>
                             </div>
                             ${data.views_html}
@@ -1507,6 +1225,10 @@
                                     <span class="section-label">Current Location</span>
                                     <h2 class="section-main-title"><i class="fas fa-map-marker-alt" style="color:#ef4444; margin-right:8px;"></i> Nearby ${cityName}</h2>
                                 </div>
+                                <div class="slider-nav-controls">
+                                    <button class="rooms-slider-nav-btn prev-rooms-btn"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="rooms-slider-nav-btn next-rooms-btn"><i class="fas fa-chevron-right"></i></button>
+                                </div>
                             </div>
                             ${data.city_rooms_html}
                         </section>
@@ -1520,6 +1242,10 @@
                                         <div>
                                             <span class="section-label">Other Nearby City</span>
                                             <h2 class="section-main-title"><i class="fas fa-city" style="color:var(--accent); margin-right:8px;"></i> Rooms in ${group.city}</h2>
+                                        </div>
+                                        <div class="slider-nav-controls">
+                                            <button class="rooms-slider-nav-btn prev-rooms-btn"><i class="fas fa-chevron-left"></i></button>
+                                            <button class="rooms-slider-nav-btn next-rooms-btn"><i class="fas fa-chevron-right"></i></button>
                                         </div>
                                     </div>
                                     ${group.html}
@@ -1535,30 +1261,58 @@
                                     <span class="section-label">State Wide Properties</span>
                                     <h2 class="section-main-title"><i class="fas fa-map" style="color:#a855f7; margin-right:8px;"></i> Stays in ${stateName} State</h2>
                                 </div>
+                                <div class="slider-nav-controls">
+                                    <button class="rooms-slider-nav-btn prev-rooms-btn"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="rooms-slider-nav-btn next-rooms-btn"><i class="fas fa-chevron-right"></i></button>
+                                </div>
                             </div>
                             ${data.state_rooms_html}
                         </section>
                     `;
                 } else if (tabName === 'offers') {
                     html += `
-                        <div class="offers-section-title">
-                            <i class="fas fa-bolt" style="color:#ef4444;"></i> Last-Minute Discount
-                        </div>
+                        <div class="section-header-wrapper" style="margin-top: 24px;">
+                                <div>
+                                    <h2 class="section-main-title"><i class="fas fa-bolt" style="color:#ef4444; margin-right:8px;"></i> Last-Minute Discount</h2>
+                                </div>
+                                <div class="slider-nav-controls">
+                                    <button class="rooms-slider-nav-btn prev-rooms-btn"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="rooms-slider-nav-btn next-rooms-btn"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
                         ${data.last_minute_html}
 
-                        <div class="offers-section-title">
-                            <i class="fas fa-feather" style="color:#10b981;"></i> Early-Bird Discount
-                        </div>
+                        <div class="section-header-wrapper" style="margin-top: 40px;">
+                                <div>
+                                    <h2 class="section-main-title"><i class="fas fa-feather" style="color:#10b981; margin-right:8px;"></i> Early-Bird Discount</h2>
+                                </div>
+                                <div class="slider-nav-controls">
+                                    <button class="rooms-slider-nav-btn prev-rooms-btn"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="rooms-slider-nav-btn next-rooms-btn"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
                         ${data.early_bird_html}
 
-                        <div class="offers-section-title">
-                            <i class="fas fa-calendar-alt" style="color:#f59e0b;"></i> Length-of-Stay Discount
-                        </div>
+                        <div class="section-header-wrapper" style="margin-top: 40px;">
+                                <div>
+                                    <h2 class="section-main-title"><i class="fas fa-calendar-alt" style="color:#f59e0b; margin-right:8px;"></i> Length-of-Stay Discount</h2>
+                                </div>
+                                <div class="slider-nav-controls">
+                                    <button class="rooms-slider-nav-btn prev-rooms-btn"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="rooms-slider-nav-btn next-rooms-btn"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
                         ${data.length_of_stay_html}
 
-                        <div class="offers-section-title">
-                            <i class="fas fa-gift" style="color:#a855f7;"></i> Special Discount
-                        </div>
+                        <div class="section-header-wrapper" style="margin-top: 40px;">
+                                <div>
+                                    <h2 class="section-main-title"><i class="fas fa-gift" style="color:#a855f7; margin-right:8px;"></i> Special Discount</h2>
+                                </div>
+                                <div class="slider-nav-controls">
+                                    <button class="rooms-slider-nav-btn prev-rooms-btn"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="rooms-slider-nav-btn next-rooms-btn"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
                         ${data.special_html}
                     `;
                 }

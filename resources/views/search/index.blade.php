@@ -41,7 +41,7 @@
             </h1>
             <p class="results-subtitle">{{ $rooms->total() }} properties available</p>
 
-            <div class="rooms-grid">
+            <div class="search-rooms-grid">
                 @forelse($rooms as $room)
                     @include('home.partials.room_card', ['room' => $room])
                 @empty

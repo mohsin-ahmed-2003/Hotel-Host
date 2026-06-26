@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/global.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/rooms-grid.css') }}">
 
     @php $mapKey = \App\Models\SiteSetting::get('map_key'); @endphp
     @if($mapKey)
@@ -30,6 +31,7 @@
     @include('partials.footer')
 
     <script src="{{ asset('js/global.js') }}"></script>
+    <script src="{{ asset('js/rooms-grid.js') }}"></script>
     @yield('scripts')
 </body>
 

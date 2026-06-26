@@ -1,0 +1,404 @@
+/* ═══════════════════════════════════════════════════════════
+   ROOMS GRID HORIZONTAL SLIDER
+   ═══════════════════════════════════════════════════════════ */
+/* The outer container handling the slider relative positioning */
+.rooms-slider-container {
+    position: relative;
+    width: 100%;
+}
+
+/* The horizontal scrolling grid */
+.rooms-grid {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding-bottom: 24px;
+    /* Space for shadow/hover effects */
+    margin-top: 24px;
+
+    /* Hide scrollbar for cleaner look */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.rooms-grid::-webkit-scrollbar {
+    display: none;
+}
+
+/* Room Card explicit sizing for 4 cards in a standard ~1200px layout */
+.rooms-grid .room-card {
+    flex: 0 0 calc((100% - 72px) / 4);
+    scroll-snap-align: start;
+    width: calc((100% - 72px) / 4);
+    max-width: calc((100% - 72px) / 4);
+}
+
+/* Next/Prev Buttons mapped to the section header */
+.slider-nav-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.rooms-slider-nav-btn {
+    background-color: #f1f5f9;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+body.dark-mode .rooms-slider-nav-btn {
+    background-color: #1e293b;
+    color: #cbd5e1;
+}
+
+.rooms-slider-nav-btn:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .rooms-slider-nav-btn:hover {
+    background-color: #334155;
+    color: #f8fafc;
+}
+
+.rooms-slider-nav-btn i {
+    font-size: 14px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AIRBNB-STYLE ROOM CARD
+   ═══════════════════════════════════════════════════════════ */
+
+/* The card wrapper: no background, no border, no padding */
+.room-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    width: 100%;
+    cursor: pointer;
+    transition: none;
+    /* No hover lift for Airbnb clone */
+    text-decoration: none !important;
+}
+
+.room-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+}
+
+/* Image Slider inside the card */
+.room-image-slider {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 20 / 19;
+    /* Airbnb's roughly square but slightly tall ratio */
+    height: auto;
+    /* override any fixed height */
+    overflow: hidden;
+    background: #e2e8f0;
+    flex-shrink: 0;
+    border-radius: 12px;
+    /* Fully rounded image container */
+    margin-bottom: 12px;
+    /* Space between image and text */
+}
+
+/* Fallback image alignment fix */
+.room-image-slider.fallback-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slides-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.slide-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    display: none;
+}
+
+.slide-img.active {
+    opacity: 1;
+    z-index: 1;
+    display: block;
+}
+
+/* Hover Chevron Navigation arrows (inside image) */
+.slider-btn {
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) scale(0.85) !important;
+    z-index: 10 !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    border: none !important;
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #1e293b !important;
+    cursor: pointer !important;
+    opacity: 0 !important;
+    transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+    outline: none !important;
+}
+
+.slider-btn:hover {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    transform: translateY(-50%) scale(1.05) !important;
+}
+
+.room-card:hover .slider-btn {
+    opacity: 1 !important;
+    transform: translateY(-50%) scale(1) !important;
+}
+
+.prev-btn {
+    left: 8px !important;
+}
+
+.next-btn {
+    right: 8px !important;
+}
+
+/* Wishlist Heart Button inside top-right corner of image */
+.wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 15;
+    background: transparent !important;
+    border: none !important;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent outline */
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: none !important;
+    outline: none;
+}
+
+.wishlist-btn i {
+    font-size: 24px;
+    stroke: white;
+    stroke-width: 2px;
+    color: rgba(0, 0, 0, 0.5);
+    /* Fill color */
+}
+
+.wishlist-btn:hover {
+    transform: scale(1.1);
+}
+
+.wishlist-btn.active i {
+    color: #ff385c;
+    /* Airbnb pink/red */
+}
+
+/* Content Container: No padding, relies on natural flow below image */
+.room-card-content {
+    padding: 0 !important;
+    background: transparent !important;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    /* Very tight gap */
+}
+
+/* First Row: Room Name & Review (Right Side) */
+.room-title-review-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+}
+
+.room-title-link {
+    min-width: 0;
+    flex-grow: 1;
+}
+
+.room-card-title {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    /* Airbnb uses semibold for title */
+    color: var(--body-text) !important;
+    margin: 0 !important;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.room-card:hover .room-card-title {
+    color: var(--body-text) !important;
+    /* No color change on hover */
+}
+
+.room-card-review {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    /* Normal weight for review */
+    color: var(--body-text) !important;
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+
+.room-card-review .star-icon {
+    color: var(--body-text) !important;
+    /* Airbnb stars are black/gray */
+    font-size: 12px !important;
+}
+
+/* Type, Distance, Dates */
+.room-type-space-row,
+.room-location,
+.room-guests,
+.room-card-footer {
+    display: flex;
+    align-items: center;
+    font-size: 15px !important;
+    color: var(--body-muted) !important;
+    /* Airbnb secondary gray */
+    font-weight: 400 !important;
+    margin: 0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: none !important;
+    padding: 0 !important;
+    gap: 25px;
+}
+
+/* Footer styling to show location and guests on a single line */
+.room-card-footer {
+    display: flex !important;
+    gap: 8px !important;
+    /* Proper space */
+    justify-content: flex-start;
+}
+
+
+/* Price Row */
+.room-card-price-row {
+    display: flex;
+    align-items: center;
+    font-size: 15px !important;
+    color: var(--body-text) !important;
+    font-weight: 400 !important;
+    margin-top: 4px !important;
+}
+
+.room-card-price-row .price-val {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: var(--body-text) !important;
+    margin-right: 4px !important;
+}
+
+/* Dark mode overrides */
+body.dark-mode .room-card-title,
+body.dark-mode .room-card-review,
+body.dark-mode .room-card-price-row,
+body.dark-mode .room-card-price-row .price-val,
+body.dark-mode .room-card-review .star-icon {
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .room-type-space-row,
+body.dark-mode .room-location {
+    color: #94a3b8 !important;
+}
+
+/* Entrance Stagger Animation */
+@keyframes staggerFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.stagger-fade-in {
+    animation: staggerFadeIn 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    opacity: 0;
+}
+
+/* Image Loading Skeleton */
+@keyframes skeletonLoading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-img-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: skeletonLoading 1.5s infinite linear;
+    z-index: 2;
+    border-radius: inherit;
+}
+
+body.dark-mode .skeleton-img-placeholder {
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+}
+
+.slides-container.loaded .skeleton-img-placeholder,
+.see-all-wrapper.loaded .skeleton-img-placeholder {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
