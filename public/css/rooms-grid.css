@@ -291,8 +291,6 @@ body.dark-mode .rooms-slider-nav-btn:hover {
 
 /* Type, Distance, Dates */
 .room-type-space-row,
-.room-location,
-.room-guests,
 .room-card-footer {
     display: flex;
     align-items: center;
@@ -306,14 +304,21 @@ body.dark-mode .rooms-slider-nav-btn:hover {
     text-overflow: ellipsis;
     border: none !important;
     padding: 0 !important;
-    gap: 25px;
+    gap: 8px; /* Same gap as we want for both */
+}
+
+.room-location,
+.room-guests,
+.room-property-type,
+.room-space-type {
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Small gap between icon and text */
 }
 
 /* Footer styling to show location and guests on a single line */
 .room-card-footer {
     display: flex !important;
-    gap: 8px !important;
-    /* Proper space */
     justify-content: flex-start;
 }
 

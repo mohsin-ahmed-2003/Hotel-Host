@@ -69,7 +69,13 @@
             </div>
         </div>
 
-        <!-- Second Row: Room Type and Space Type -->
+        <!-- Second Row: Price below type and space type -->
+        <div class="room-card-price-row">
+            <span class="price-val">{{ $room->currency_symbol }}{{ number_format($room->price, 0) }}</span>
+            / night
+        </div>
+
+        <!-- Third Row: Room Type and Space Type -->
         <div class="room-type-space-row">
             <span class="room-property-type"><i class="fas fa-hotel" style="font-size:10px;"></i>
                 {{ $room->propertyType->name ?? 'Room' }}</span>
@@ -78,11 +84,7 @@
                 {{ $room->spaceType->name ?? 'Entire Space' }}</span>
         </div>
 
-        <!-- Third Row: Price below type and space type -->
-        <div class="room-card-price-row">
-            <span class="price-val">{{ $room->currency_symbol }}{{ number_format($room->price, 0) }}</span>
-            / night
-        </div>
+
 
         <!-- Fourth Row: Compact Footer details -->
         <div class="room-card-footer">
@@ -91,7 +93,7 @@
                 {{ $room->roomLocation->city ?? ($room->city ?: 'N/A') }}
             </span>
             <span class="room-guests">
-                <i class="fas fa-users"></i> {{ $room->accommodation ?? 2 }} Guests
+                <i class="fas fa-users"></i> {{ intval($room->accommodation) ?: 2 }} Guests
             </span>
         </div>
     </div>
